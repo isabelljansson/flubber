@@ -11,6 +11,8 @@ And this tutorial for deformer plugins:
 And this paper about shape matching:
 * https://www.cs.drexel.edu/~david/Classes/Papers/MeshlessDeformations_SIG05.pdf
 
+---
+
 Build on OSX:
   * mkdir build
   * cd build
