@@ -1,12 +1,15 @@
-# Maya_Custom_Deformer_Plugin
-A plugin for Maya that writes Hello World
+# A Maya flubber plugin
+A plugin for Maya that deforms an object like flubber
 
 Based on the tutorials by Chad Vernon:
 * http://www.chadvernon.com/blog/resources/maya-api-programming/your-first-plug-in/
 * http://www.chadvernon.com/blog/maya/compiling-maya-plug-ins-with-cmake/
 
 And this tutorial for deformer plugins:
-* http://www.ngreen.org/2014/08/implementing-a-simple-maya-python-deformer/
+* http://www.ngreen.org/articles/implementing-a-simple-maya-python-deformer.html
+
+And this paper about shape matching:
+* https://www.cs.drexel.edu/~david/Classes/Papers/MeshlessDeformations_SIG05.pdf
 
 Build on OSX:
   * mkdir build
@@ -21,7 +24,6 @@ For OSX, the compiler will build the file sampleplugin.bundle,
   * Open Maya and go to Window -> Settings/Preferences -> Plug-in Manager
   * Browse for sampleplugin.bundle and open.
 
-Now the helloWorld function can be run from the python terminal by:
+Now the Flubber function can be run from the python terminal by:
   * import maya.cmds as cmds
-  * cmds.helloWorld()
-  Hello World! is printed in the Maya script editor
+  * cmds.Flubber()
