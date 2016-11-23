@@ -26,9 +26,27 @@ class PushDeformerNode : public MPxDeformerNode {
 		static void* creator();
 		static MStatus initialize();
 
+		// Unique ID
 		static MTypeId id;
-		// Inflation tells how much to displace 
-		static MObject inflation_attr;
+
+		// Global Attributes
+		static MObject GravityMagnitude;
+		static MObject GravityDirection;
+
+		// Object Attributes
+		static MObject CurrentTime;
+		static MObject Mass;
+		static MObject Flubbiness;
+		// ... stiffness, elasticity, staticfriction, dynamicfriction, something more?
+
+		// Initial values
+		static MObject InitialVelocity;
+
+	private:
+		static ParticleSystem* shape;
+		static bool initFrame;
+		static MTime tPrev;
+
 };
 
 #endif
