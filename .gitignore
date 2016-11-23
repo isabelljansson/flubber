@@ -2,3 +2,8 @@
 
 .DS_Store
 Thumbs.db
+
+glm/
+*.swp
+*.o
+out

@@ -1,18 +1,29 @@
+#include <iostream>
+#include <vector>
+
+#ifdef __linux__
+#include "../glm/glm/glm.hpp"
+#elif __APPLE__
 #include "glm/glm.hpp"
+#endif
 
 using namespace std;
 using namespace glm;
 
 class ParticleSystem {
     public:
-        ParticleSystem();
+        ParticleSystem(vector<vec3>* x, vec3 vel);
         ~ParticleSystem();
 
-        std::vector<particle>* getx0();
+        vector< vec3 >* getPos();
+        vector< vec3 >* getVelocity();
 
         void deform();
+        vec3 calcCom(vector< vec3 >* x);
 
     private:
-    	std::vector<glm::vec3>* x0;
+    	vector< vec3 > *x0;
+    	vector< vec3 > *v;
+        vec3 initCom;
 
 };
