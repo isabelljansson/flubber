@@ -7,9 +7,9 @@ polyPlane -n myPlane -sx 1 -sy 1 -h 10 -w 10;
 //select -r myPlane ;
 move -r 0 2.0 0;
 
-sphere -n mySphere -r 1;
+polySphere -n mySphere -r 1 -sx 20 -sy 20 -ax 0 1 0 -cuv 2 -ch 1;
 
 move -r 0 5.0 0;
 
-//select -r mySphere;
-//deformer -type flubber;
+select -r mySphere;
+deformer -type flubber;
