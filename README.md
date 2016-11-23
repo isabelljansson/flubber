@@ -28,4 +28,4 @@ For OSX, the compiler will build the file sampleplugin.bundle,
 
 Now the Flubber function can be run from the python terminal by:
   * import maya.cmds as cmds
-  * cmds.Flubber()
+  * cmds.flubber()
