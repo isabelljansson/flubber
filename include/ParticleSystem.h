@@ -8,5 +8,11 @@ class ParticleSystem {
         ParticleSystem();
         ~ParticleSystem();
 
+        std::vector<particle>* getx0();
+
+        void deform();
+
     private:
+    	std::vector<glm::vec3>* x0;
+
 };

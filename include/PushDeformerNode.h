@@ -19,16 +19,16 @@
 // Simple deformer node
 // It will deform the vertices along the normals of the object surface.
 class PushDeformerNode : public MPxDeformerNode {
- public:
-  PushDeformerNode() {};
-  virtual MStatus deform(MDataBlock& data, MItGeometry& it_geo,
-                         const MMatrix &local_to_world_matrix, unsigned int m_index);
-  static void* creator();
-  static MStatus initialize();
- 
-  static MTypeId id;
-  // Inflation tells how much to displace 
-  static MObject inflation_attr;
+	public:
+		PushDeformerNode() {};
+		virtual MStatus deform(MDataBlock& data, MItGeometry& it_geo,
+		                     const MMatrix &local_to_world_matrix, unsigned int m_index);
+		static void* creator();
+		static MStatus initialize();
+
+		static MTypeId id;
+		// Inflation tells how much to displace 
+		static MObject inflation_attr;
 };
 
 #endif
