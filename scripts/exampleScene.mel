@@ -1,0 +1,15 @@
+// Delete old objects in the scene when reloading the script
+file -f -new;
+
+// Create a plane
+
+polyPlane -n myPlane -sx 1 -sy 1 -h 10 -w 10;
+//select -r myPlane ;
+move -r 0 2.0 0;
+
+sphere -n mySphere -r 1;
+
+move -r 0 5.0 0;
+
+//select -r mySphere;
+//deformer -type flubber;
