@@ -42,6 +42,8 @@ class ParticleSystem {
         void updatePos();
         glm::vec3 calcCom(vector< glm::vec3 >* x);
 
+
+
     private:
     	vector< glm::vec3 > *x0; // Initial position
     	vector< glm::vec3 > *x1; // Updated postion
@@ -50,7 +52,6 @@ class ParticleSystem {
         vector< glm::vec3 > *F; // Force
 
         glm::vec3 initCom;
+        glm::mat3 to_glm(arma::fmat M);
 
-        // Physics variables
-        
 };
