@@ -1,29 +1,33 @@
 #include "../include/ParticleSystem.h"
 
 ParticleSystem::ParticleSystem(vector< vec3 >* x, vec3 vel) {
-    cout << "hej\n";
     // Set initial position
     x0 = x;
+    x1 = x;
 
-    cout << "hej0\n";
     // Set initial velocity vector
-    v->resize(x0->size());
-    fill(v->begin(), v->end(), vel);
-    cout << "hej1\n";
+    v = new vector< vec3 >();
+    for (int i = 0; i < x0->size(); ++i) {
+        v->push_back(vel);
+    }
 
     // Calculate initial center of mass
     initCom = calcCom(x0);
-    cout << "hej2\n";
 
 }
 
 
 ParticleSystem::~ParticleSystem() {
+    delete v;
 
 }
 
 std::vector< vec3 >* ParticleSystem::getPos() {
 	return x0;
+}
+
+std::vector< vec3 >* ParticleSystem::getVel() {
+	return v;
 }
 
 void ParticleSystem::deform() {
