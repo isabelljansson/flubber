@@ -6,13 +6,12 @@ SOURCE :=\
 	src/ParticleSystem.cpp\
 	src/main.cpp
  
- 
- 
- 
 CC := g++
-HEADERFILES := -I./include/
+HEADERFILES := -I/usr/local/include/ 
 LDFLAGS := -o
 CPFLAGS := -c -g -std=c++11
+
+INCLUDES := -I/usr/local/lib/ -larmadillo
 
 
 all: $(OBJECTS)
