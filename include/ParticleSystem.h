@@ -24,6 +24,7 @@ class ParticleSystem {
         vector< glm::vec3 >* getVel();
 
         void deform();
+        void updateForce();
         void updateVel();
         void updatePos();
         glm::vec3 calcCom(vector< glm::vec3 >* x);
@@ -33,11 +34,14 @@ class ParticleSystem {
     	vector< glm::vec3 > *x1; // Updated postion
 
     	vector< glm::vec3 > *v; // Velocity
-        vector< glm::vec3 > *F; // Force
+        vector< glm::vec3 > *F; // External forces
 
         glm::vec3 initCom;
 
         // Physics variables
-        float mass;
         float dt; // Time step
+        float mass;
+        float friction;
+        float elasticity;
+        glm::vec3 gravity;
 };

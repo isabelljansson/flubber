@@ -45,6 +45,28 @@ void ParticleSystem::deform() {
 	
 }
 
+void ParticleSystem::updateForce()
+{
+    // Should set forces according to input and collisions etc
+    for (int i = 0; i < F->size(); ++i) {
+        // Gravity
+        F->at(i) = gravity * mass;
+
+        // Add collision impulse and friction
+        if (x1->at(i).y <= 0 && v->at(i).y < 0) {
+            glm::vec3 normal = glm::vec3(0.0f, 1.0f, 0.0f);
+            glm::vec3 deltaV = v->at(i) - glm::vec3(0,0,0); // Floor is static
+
+            glm::vec3 composant = normal * glm::dot(normal, deltaV); // deltaV composant in normal direction
+
+            glm::vec3 collisionImpulse = -(elasticity + 1) * normal * glm::dot(normal, deltaV) * mass;
+            glm::vec3 frictionImpulse = -friction * (deltaV - composant) * mass;
+
+            F->at(i) += (collisionImpulse + frictionImpulse) / dt;
+            x1->at(i).y = 0.01; // Set position to above object
+        }
+    }
+}
 
 void ParticleSystem::updateVel()
 {
@@ -53,6 +75,8 @@ void ParticleSystem::updateVel()
         v->at(i) += F->at(i) / mass * dt;
         F->at(i) = glm::vec3(0,0,0); // Reset all forces?
     }
+
+    // Modified euler integration?
 }
 
 void ParticleSystem::updatePos()
@@ -61,6 +85,8 @@ void ParticleSystem::updatePos()
     for (int i = 0; i < x1->size(); ++i) {
         x1->at(i) += v->at(i) * dt;
     }   
+
+    // Modified euler integration?
 }
 
 glm::vec3 ParticleSystem::calcCom(vector< glm::vec3 >* x) {
