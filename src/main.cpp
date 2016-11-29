@@ -1,7 +1,7 @@
 // Main for test purposes before running maya
 
 #include <iostream>
-#include "ParticleSystem.h"
+#include "../include/ParticleSystem.h"
 
 using namespace std;
 
