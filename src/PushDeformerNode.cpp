@@ -61,6 +61,8 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
         /*shape->mass*/ double mass = data.inputValue(Mass).asDouble();
         /*shape->flubbiness*/ double flub = data.inputValue(Flubbiness).asDouble();
         // more later..
+        //set current mode
+
 
         // Update the particle systems positions with dynamics simulation and
         // Shape matching
