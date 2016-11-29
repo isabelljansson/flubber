@@ -33,15 +33,44 @@ std::vector< glm::vec3 >* ParticleSystem::getVel() {
 
 void ParticleSystem::deform() {
 
-	arma::fmat orgPos; // Original positions
-	arma::fmat defPos; // Deformed positions
-	arma::fmat Apq; 	 // Covariance matrix containing information about rotation
+	arma::fmat q; 	// Original positions
+	arma::fmat p; 	// Deformed positions
+	arma::fmat Apq;	// Covariance matrix containing information about rotation
+	arma::fmat R;	// Rotation matrix
 
 	glm::vec3 newCom; // New center of mass
 
 	newCom = calcCom(x1);
 
-	// rigid bodies
+	/* --- RIGID BODIES --- */
+
+	// Allocate
+	p = arma::fmat(3, x1->size());
+	q = arma::fmat(3, x1->size());
+
+	// Init orgPos and defPos matrices
+	for (int i = 0; i < x1->size(); ++i) {
+		p(0,i) = x1->at(i).x - newCom.x;
+		p(1,i) = x1->at(i).y - newCom.y;
+		p(2,i) = x1->at(i).z - newCom.z; 
+
+		q(0,i) = x0->at(i).x - initCom.x;
+		q(1,i) = x0->at(i).y - initCom.y;
+		q(2,i) = x0->at(i).z - initCom.z;
+	}
+
+	// Find covariance matrix Apq
+	// should be multiplied with x1->size()*massPerParticle
+	Apq = p * q.t();
+
+	// Find rotational part in Apq through Singular Value Decomposition
+	arma::fmat U, V; // matrices for svd
+	//arma::fvec S; // vector for svd
+
+	//arma::svd(U,S,V,Apq);
+	//R = V * U.t();
+
+
 	
 }
 
