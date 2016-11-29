@@ -65,10 +65,10 @@ void ParticleSystem::deform() {
 
 	// Find rotational part in Apq through Singular Value Decomposition
 	arma::fmat U, V; // matrices for svd
-	//arma::fvec S; // vector for svd
+	arma::fvec S; // vector for svd
 
-	//arma::svd(U,S,V,Apq);
-	//R = V * U.t();
+	arma::svd(U,S,V,Apq);
+	R = V * U.t();
 
 
 	
