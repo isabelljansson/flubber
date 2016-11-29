@@ -12,5 +12,7 @@ int main(int argc, char* argv[]) {
     glm::vec3 vel = glm::vec3(1, 0, 1);
     ParticleSystem object = ParticleSystem(pos, vel);
 
+    cout << "Weeee" << endl;
+    delete pos;
     return 0;
 }
