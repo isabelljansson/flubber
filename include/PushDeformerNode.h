@@ -12,6 +12,7 @@
 #include <maya/MFnMesh.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnTypedAttribute.h>
+#include <maya/MFnEnumAttribute.h>
 #include <maya/MFloatVectorArray.h>
 
 #include <maya/MPxDeformerNode.h>
@@ -41,6 +42,8 @@ class PushDeformerNode : public MPxDeformerNode {
 
 		// Initial values
 		static MObject InitialVelocity;
+
+		static MObject PushDeformerNode::Menu;
 
 	private:
 		static ParticleSystem* shape;
