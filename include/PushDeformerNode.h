@@ -41,17 +41,15 @@ class PushDeformerNode : public MPxDeformerNode {
 		// Global Attributes
 		static MObject GravityMagnitude;
 		static MObject GravityDirection;
+		static MObject InitialVelocity;
+		static MObject Mode;
+
 
 		// Object Attributes
 		static MObject CurrentTime;
 		static MObject Mass;
 		static MObject Flubbiness;
 		// ... stiffness, elasticity, staticfriction, dynamicfriction, something more?
-
-		// Initial values
-		static MObject InitialVelocity;
-
-		static MObject Mode;
 
 	private:
 		static ParticleSystem* shape;

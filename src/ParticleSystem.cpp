@@ -61,7 +61,7 @@ void ParticleSystem::deform() {
 
 	// Find covariance matrix Apq
 	// should be multiplied with x1->size()*massPerParticle
-	Apq = p * q.t();
+	//Apq = p * q.t();
 
 	// Find rotational part in Apq through Singular Value Decomposition
 	arma::fmat U, V; // matrices for svd
