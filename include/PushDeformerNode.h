@@ -24,11 +24,6 @@
 #include <maya/MPxDeformerNode.h>
 
 #include "../include/ParticleSystem.h"
-#ifdef __linux__
-#include "../glm/glm/glm.hpp"
-#elif __APPLE__
-#include "glm/glm.hpp"
-#endif
 
 // Simple deformer node
 // It will deform the vertices along the normals of the object surface.
