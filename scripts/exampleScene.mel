@@ -1,3 +1,5 @@
+//loadPlugin("/Users/Jonte/Documents/flubber/build/src/sampleplugin.bundle");
+
 // Delete old objects in the scene when reloading the script
 file -f -new;
 

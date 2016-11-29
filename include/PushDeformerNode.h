@@ -1,6 +1,8 @@
 #ifndef PUSH_DEFORMER_NODE
 #define PUSH_DEFORMER_NODE
 
+#include <math.h>
+
 #include <maya/MAnimControl.h>
 #include <maya/MTime.h>
 #include <maya/MDataBlock.h>
@@ -9,6 +11,7 @@
 #include <maya/MItGeometry.h>
 #include <maya/MMatrix.h>
 #include <maya/MPointArray.h>
+#include <maya/MVector.h>
 #include <maya/MStatus.h>
  
 #include <maya/MFnMesh.h>
@@ -21,6 +24,11 @@
 #include <maya/MPxDeformerNode.h>
 
 #include "../include/ParticleSystem.h"
+#ifdef __linux__
+#include "../glm/glm/glm.hpp"
+#elif __APPLE__
+#include "glm/glm.hpp"
+#endif
 
 // Simple deformer node
 // It will deform the vertices along the normals of the object surface.
@@ -48,7 +56,7 @@ class PushDeformerNode : public MPxDeformerNode {
 		// Initial values
 		static MObject InitialVelocity;
 
-		static MObject Menu;
+		static MObject Mode;
 
 	private:
 		static ParticleSystem* shape;

@@ -16,7 +16,7 @@ ParticleSystem* PushDeformerNode::shape;
 MTime PushDeformerNode::tPrev;
 
 
-MObject PushDeformerNode::Menu;
+MObject PushDeformerNode::Mode;
  
 void* PushDeformerNode::creator() { return new PushDeformerNode; }
 
@@ -30,16 +30,17 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
             delete shape;
 
         tPrev = data.inputValue(CurrentTime).asTime();
+        
         std::vector<glm::vec3> *p0;
-        MVector temp = data.inputValue(InitialVelocity).asVector(); // ugly?
-        glm::vec3 v0 = glm::vec3(temp[0], temp[1], temp[2]);
+        //MVector temp = data.inputValue(InitialVelocity).asVector(); // ugly?
+        //glm::vec3 v0 = glm::vec3(temp[0], temp[1], temp[2]);
         for (; !it_geo.isDone(); it_geo.next()) {
             MPoint vertexPos = it_geo.position() * local_to_world_matrix;
             glm::vec3 pi0(vertexPos.x, vertexPos.y, vertexPos.z);
-            p0->push_back(pi0);
+            //p0->push_back(pi0);
         }
-        shape = new ParticleSystem(p0, v0);
-
+        //shape = new ParticleSystem(p0, v0);
+        
         initFrame = false;
         return MS::kSuccess;
     }
@@ -47,22 +48,17 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
     else {
         MStatus status;
 
-        // Fetch the envelope and the inflation input value
-        float env = data.inputValue(envelope).asFloat(); // env is not used (as we use particle system instead)
-
         tNow = data.inputValue(CurrentTime).asTime();
         MTime tDiff = tNow - tPrev;
         tPrev = tNow;
 
         // physics arguments
-        MVector temp = data.inputValue(GravityMagnitude).asDouble() 
-            * data.inputValue(GravityDirection).asVector(); // ugly?
-        /*shape->gravity*/ glm::vec3 gravity = glm::vec3(temp[0], temp[1], temp[2]);
+        //MVector temp = data.inputValue(GravityMagnitude).asDouble() 
+          //  * data.inputValue(GravityDirection).asVector(); // ugly?
+        ///*shape->gravity*/ glm::vec3 gravity = glm::vec3(temp[0], temp[1], temp[2]);
         /*shape->mass*/ double mass = data.inputValue(Mass).asDouble();
         /*shape->flubbiness*/ double flub = data.inputValue(Flubbiness).asDouble();
         // more later..
-
-
 
         // Get the input mesh (fn_input_mesh)
         MArrayDataHandle h_input = data.outputArrayValue( input, &status );
@@ -82,7 +78,7 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
             int idx = it_geo.index();
             MVector nrm = MVector(normals[idx]);
             MPoint pos = it_geo.position();
-            MPoint new_pos = pos + (nrm * env);
+            MPoint new_pos = pos;
             it_geo.setPosition(new_pos);
         }
 
@@ -99,7 +95,7 @@ MStatus PushDeformerNode::initialize() {
     MFnEnumAttribute eAttr;
 
     // Create a numeric attributes
-    Menu = eAttr.create("Menu", "me", 0);
+    Mode = eAttr.create("Mode", "me", 0);
     eAttr.setStorable(true);
     eAttr.setKeyable(true);
     eAttr.addField("Rigid", 0);
@@ -143,7 +139,7 @@ MStatus PushDeformerNode::initialize() {
     addAttribute(GravityDirection);
     addAttribute(Mass);
     addAttribute(Flubbiness);
-    addAttribute(Menu);
+    addAttribute(Mode);
 
     attributeAffects(CurrentTime, outputGeom);  // does this do anything?
     attributeAffects(GravityMagnitude, outputGeom);
