@@ -74,9 +74,22 @@ void ParticleSystem::deform() {
 	
 }
 
-void ParticleSystem::updatePos() {
-	// Euler integration
 
+void ParticleSystem::updateVel()
+{
+    // Euler integration
+    for (int i = 0; i < v->size(); ++i) {
+        v->at(i) += F->at(i) / mass * dt;
+        F->at(i) = glm::vec3(0,0,0); // Reset all forces?
+    }
+}
+
+void ParticleSystem::updatePos()
+{
+    // Euler integration
+    for (int i = 0; i < x1->size(); ++i) {
+        x1->at(i) += v->at(i) * dt;
+    }   
 }
 
 glm::vec3 ParticleSystem::calcCom(vector< glm::vec3 >* x) {
