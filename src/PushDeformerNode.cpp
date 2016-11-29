@@ -1,5 +1,7 @@
 #include "../include/PushDeformerNode.h"
 
+#define SIGN(i) (i < 0 ? -1 : 1)
+
 MTypeId PushDeformerNode::id(0x00000002);
 
 MObject PushDeformerNode::GravityMagnitude;
@@ -60,26 +62,28 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
         /*shape->flubbiness*/ double flub = data.inputValue(Flubbiness).asDouble();
         // more later..
 
-        // Get the input mesh (fn_input_mesh)
-        MArrayDataHandle h_input = data.outputArrayValue( input, &status );
-        CHECK_MSTATUS_AND_RETURN_IT( status )
-        status = h_input.jumpToElement( m_index );
-        CHECK_MSTATUS_AND_RETURN_IT( status )
-        MObject o_input_geom = h_input.outputValue().child( inputGeom ).asMesh();
-        MFnMesh fn_input_mesh( o_input_geom );
+        // Update the particle systems positions with dynamics simulation and
+        // Shape matching
+        if (shape) {
+          int updates = tDiff.value();
+          int updatesPerTimeStep = 2;
+          for (int i = 0; i < abs(updates) * updatesPerTimeStep; ++i) {
+            //shape->stepPhysics(1 / 24.0 / updatesPerTimeStep * SIGN(updates), pArg);
+            //shape->matchShape(1 / 24.0 / updatesPerTimeStep * SIGN(updates), pArg);
+          }
+        }
+        else
+          MGlobal::displayInfo("shape == NULL");
 
-        // Get the normal array from the input mesh
-        MFloatVectorArray normals = MFloatVectorArray();
-        fn_input_mesh.getVertexNormals(true, normals, MSpace::kTransform);
-
-
-        // Loop through the geometry and set vertex positions
+        // Update output positions
+        MMatrix local_to_world_matrix_inv = local_to_world_matrix.inverse();
         for (; !it_geo.isDone(); it_geo.next()) {
-            int idx = it_geo.index();
-            MVector nrm = MVector(normals[idx]);
-            MPoint pos = it_geo.position();
-            MPoint new_pos = pos;
-            it_geo.setPosition(new_pos);
+          int idx = it_geo.index();
+
+          //glm::vec3 p = shape->getPosition(idx);
+          //MPoint newPos(p.x, p.y, p.z);
+          // Transform back to model coordinates
+          //itGeo.setPosition(newPos * local_to_world_matrix_inv;
         }
 
         return MS::kSuccess;
