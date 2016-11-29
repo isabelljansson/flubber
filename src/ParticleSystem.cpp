@@ -99,12 +99,8 @@ void ParticleSystem::deform() {
 	for (int i = 0; i < p.size(); ++i) {
 		//v->at(i) += ...
 		//x1->at(i) += ...
-	}
-
-
-	
+	}	
 }
-
 
 void ParticleSystem::updateVel()
 {

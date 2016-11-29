@@ -6,19 +6,16 @@ MTypeId PushDeformerNode::id(0x00000002);
 
 MObject PushDeformerNode::GravityMagnitude;
 MObject PushDeformerNode::GravityDirection;
+MObject PushDeformerNode::InitialVelocity;
+MObject PushDeformerNode::Mode;
 
 MObject PushDeformerNode::CurrentTime;
 MObject PushDeformerNode::Mass;
 MObject PushDeformerNode::Flubbiness;
 
-MObject PushDeformerNode::InitialVelocity;
-
 bool PushDeformerNode::initFrame;
 ParticleSystem* PushDeformerNode::shape;
 MTime PushDeformerNode::tPrev;
-
-
-MObject PushDeformerNode::Mode;
  
 void* PushDeformerNode::creator() { return new PushDeformerNode; }
 
@@ -33,13 +30,12 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
 
         tPrev = data.inputValue(CurrentTime).asTime();
         
-        std::vector<glm::vec3> *p0;
-        //MVector temp = data.inputValue(InitialVelocity).asVector(); // ugly?
-        //glm::vec3 v0 = glm::vec3(temp[0], temp[1], temp[2]);
+        std::vector<glm::vec3> p0;
+        MVector temp = data.inputValue(InitialVelocity).asVector(); // ugly?
+        glm::vec3 v0 = glm::vec3(temp[0], temp[1], temp[2]);
         for (; !it_geo.isDone(); it_geo.next()) {
             MPoint vertexPos = it_geo.position() * local_to_world_matrix;
-            glm::vec3 pi0(vertexPos.x, vertexPos.y, vertexPos.z);
-            //p0->push_back(pi0);
+            p0.push_back(glm::vec3(vertexPos.x, vertexPos.y, vertexPos.z));
         }
         //shape = new ParticleSystem(p0, v0);
         
@@ -55,23 +51,29 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
         tPrev = tNow;
 
         // physics arguments
-        //MVector temp = data.inputValue(GravityMagnitude).asDouble() 
-          //  * data.inputValue(GravityDirection).asVector(); // ugly?
-        ///*shape->gravity*/ glm::vec3 gravity = glm::vec3(temp[0], temp[1], temp[2]);
+        MVector temp = data.inputValue(GravityMagnitude).asDouble() 
+            * data.inputValue(GravityDirection).asVector(); // ugly?
+        /*shape->gravity*/ glm::vec3 gravity = glm::vec3(temp[0], temp[1], temp[2]);
         /*shape->mass*/ double mass = data.inputValue(Mass).asDouble();
         /*shape->flubbiness*/ double flub = data.inputValue(Flubbiness).asDouble();
         // more later..
         //set current mode
 
 
+
+        MString mess;
+        mess += mass;
+        MGlobal::displayInfo(mess);
+
+        
         // Update the particle systems positions with dynamics simulation and
         // Shape matching
         if (shape) {
           int updates = tDiff.value();
           int updatesPerTimeStep = 2;
           for (int i = 0; i < abs(updates) * updatesPerTimeStep; ++i) {
-            //shape->stepPhysics(1 / 24.0 / updatesPerTimeStep * SIGN(updates), pArg);
-            //shape->matchShape(1 / 24.0 / updatesPerTimeStep * SIGN(updates), pArg);
+            //shape->stepPhysics(1 / 24.0 / updatesPerTimeStep * SIGN(updates));
+            //shape->deform(1 / 24.0 / updatesPerTimeStep * SIGN(updates));
           }
         }
         else
@@ -100,7 +102,7 @@ MStatus PushDeformerNode::initialize() {
     MFnUnitAttribute uAttr;
     MFnEnumAttribute eAttr;
 
-    // Create a numeric attributes
+    // Create attributes
     Mode = eAttr.create("Mode", "me", 0);
     eAttr.setStorable(true);
     eAttr.setKeyable(true);
@@ -109,13 +111,14 @@ MStatus PushDeformerNode::initialize() {
     eAttr.addField("Quadratic", 2);
 
 
+    
     GravityMagnitude = nAttr.create("GravityMagnitude", "gm", MFnNumericData::kDouble, 0.0);
     nAttr.setDefault(0.0);
     nAttr.setMin(0.0);
     nAttr.setMax(10.0);
     nAttr.setChannelBox(true);
-
-    GravityMagnitude = nAttr.create("GravityDirection", "gd", MFnNumericData::k3Double, 0.0);
+    
+    GravityDirection = nAttr.create("GravityDirection", "gd", MFnNumericData::k3Double, 0.0);
     nAttr.setDefault(0.0);
     nAttr.setMin(-1.0);
     nAttr.setMax(1.0);
@@ -136,7 +139,12 @@ MStatus PushDeformerNode::initialize() {
     nAttr.setMin(0.0);
     nAttr.setMax(1.0);
     nAttr.setChannelBox(true);
-
+    
+    InitialVelocity = nAttr.create("InitialVelocity", "iv", MFnNumericData::k3Double, 0.0);
+    nAttr.setDefault(0.0);
+    nAttr.setMin(-10.0);
+    nAttr.setMax(10.0);
+    nAttr.setChannelBox(true);
 
 
     // Add the attributes
@@ -146,13 +154,14 @@ MStatus PushDeformerNode::initialize() {
     addAttribute(Mass);
     addAttribute(Flubbiness);
     addAttribute(Mode);
-
+    addAttribute(InitialVelocity);
+    
     attributeAffects(CurrentTime, outputGeom);  // does this do anything?
-    attributeAffects(GravityMagnitude, outputGeom);
+    /*attributeAffects(GravityMagnitude, outputGeom);
     attributeAffects(GravityDirection, outputGeom);
     attributeAffects(Mass, outputGeom);
     attributeAffects(Flubbiness, outputGeom);
-
+    */
     // Make the deformer weights paintable (maybe wait with this)
     // MGlobal::executeCommand("makePaintable -attrType multiFloat -sm deformer PushDeformerNode weights;");
 
