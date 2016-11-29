@@ -23,10 +23,16 @@ ParticleSystem::~ParticleSystem() {
 }
 
 std::vector< vec3 >* ParticleSystem::getPos() {
+	// Är det verkligen x0 som ska returnas?
 	return x0;
 }
 
 void ParticleSystem::deform() {
+
+}
+
+void ParticleSystem::updatePos() {
+	// Euler integration
 
 }
 
@@ -35,5 +41,5 @@ vec3 ParticleSystem::calcCom(vector< vec3 >* x) {
     for(vector< vec3 >::iterator it = x->begin(); it != x->end(); ++it) {
         com += *it;
     }
-    return com;
+    return com / x.size();
 }
