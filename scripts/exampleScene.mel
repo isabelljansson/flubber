@@ -1,5 +1,7 @@
 // Delete old objects in the scene when reloading the script
-file -f -new;
+//file -f -new;
+
+loadPlugin("/Users/Jonte/Documents/flubber/build/src/sampleplugin.bundle");
 
 // Create a plane
 

@@ -29,6 +29,8 @@ class ParticleSystem {
         void updatePos();
         glm::vec3 calcCom(vector< glm::vec3 >* x);
 
+
+
     private:
     	vector< glm::vec3 > *x0; // Initial position
     	vector< glm::vec3 > *x1; // Updated postion
@@ -37,11 +39,13 @@ class ParticleSystem {
         vector< glm::vec3 > *F; // External forces
 
         glm::vec3 initCom;
+        glm::mat3 to_glm(arma::fmat M);
 
         // Physics variables
-        float dt; // Time step
-        float mass;
-        float friction;
-        float elasticity;
-        glm::vec3 gravity;
+        int mode;
+        double dt; // Time step
+        double mass;
+        double friction;
+        double elasticity;
+        glm::dvec3 gravity;
 };

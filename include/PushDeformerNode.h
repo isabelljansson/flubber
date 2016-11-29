@@ -1,6 +1,8 @@
 #ifndef PUSH_DEFORMER_NODE
 #define PUSH_DEFORMER_NODE
 
+#include <math.h>
+
 #include <maya/MAnimControl.h>
 #include <maya/MTime.h>
 #include <maya/MDataBlock.h>
@@ -9,6 +11,7 @@
 #include <maya/MItGeometry.h>
 #include <maya/MMatrix.h>
 #include <maya/MPointArray.h>
+#include <maya/MVector.h>
 #include <maya/MStatus.h>
  
 #include <maya/MFnMesh.h>
@@ -38,17 +41,15 @@ class PushDeformerNode : public MPxDeformerNode {
 		// Global Attributes
 		static MObject GravityMagnitude;
 		static MObject GravityDirection;
+		static MObject InitialVelocity;
+		static MObject Mode;
+
 
 		// Object Attributes
 		static MObject CurrentTime;
 		static MObject Mass;
 		static MObject Flubbiness;
 		// ... stiffness, elasticity, staticfriction, dynamicfriction, something more?
-
-		// Initial values
-		static MObject InitialVelocity;
-
-		static MObject Menu;
 
 	private:
 		static ParticleSystem* shape;
