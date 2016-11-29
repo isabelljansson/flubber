@@ -1,12 +1,12 @@
 #include "../include/ParticleSystem.h"
 
-ParticleSystem::ParticleSystem(vector< vec3 >* x, vec3 vel) {
+ParticleSystem::ParticleSystem(vector< glm::vec3 >* x, glm::vec3 vel) {
     // Set initial position
     x0 = x;
     x1 = x;
 
     // Set initial velocity vector
-    v = new vector< vec3 >();
+    v = new vector< glm::vec3 >();
     for (int i = 0; i < x0->size(); ++i) {
         v->push_back(vel);
     }
@@ -22,24 +22,24 @@ ParticleSystem::~ParticleSystem() {
 
 }
 
-std::vector< vec3 >* ParticleSystem::getPos() {
+std::vector< glm::vec3 >* ParticleSystem::getPos() {
 	// Är det verkligen x0 som ska returnas?
 	return x0;
 }
 
-std::vector< vec3 >* ParticleSystem::getVel() {
+std::vector< glm::vec3 >* ParticleSystem::getVel() {
 	return v;
 }
 
 void ParticleSystem::deform() {
 
-	fmat orgPos; // Original positions
-	fmat defPos; // Deformed positions
-	fmat Apq; 	 // Covariance matrix containing information about rotation
+	arma::fmat orgPos; // Original positions
+	arma::fmat defPos; // Deformed positions
+	arma::fmat Apq; 	 // Covariance matrix containing information about rotation
 
-	vec3 newCom; // New center of mass
+	glm::vec3 newCom; // New center of mass
 
-	newCom = calcCom();
+	newCom = calcCom(x1);
 
 	// rigid bodies
 	
@@ -50,10 +50,10 @@ void ParticleSystem::updatePos() {
 
 }
 
-vec3 ParticleSystem::calcCom(vector< vec3 >* x) {
-    vec3 com = vec3(0, 0, 0);
-    for(vector< vec3 >::iterator it = x->begin(); it != x->end(); ++it) {
+glm::vec3 ParticleSystem::calcCom(vector< glm::vec3 >* x) {
+    glm::vec3 com = glm::vec3(0, 0, 0);
+    for(vector< glm::vec3 >::iterator it = x->begin(); it != x->end(); ++it) {
         com += *it;
     }
-    return com / x.size();
+    return com / (float)x->size();
 }
