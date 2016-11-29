@@ -15,6 +15,8 @@ bool PushDeformerNode::initFrame;
 ParticleSystem* PushDeformerNode::shape;
 MTime PushDeformerNode::tPrev;
 
+
+MObject PushDeformerNode::Menu;
  
 void* PushDeformerNode::creator() { return new PushDeformerNode; }
 
@@ -28,13 +30,13 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
             delete shape;
 
         tPrev = data.inputValue(CurrentTime).asTime();
-        std::vector<glm::vec3> p0;
+        std::vector<glm::vec3> *p0;
         MVector temp = data.inputValue(InitialVelocity).asVector(); // ugly?
         glm::vec3 v0 = glm::vec3(temp[0], temp[1], temp[2]);
         for (; !it_geo.isDone(); it_geo.next()) {
             MPoint vertexPos = it_geo.position() * local_to_world_matrix;
             glm::vec3 pi0(vertexPos.x, vertexPos.y, vertexPos.z);
-            p0.push_back(pi0);
+            p0->push_back(pi0);
         }
         shape = new ParticleSystem(p0, v0);
 
@@ -55,9 +57,9 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
         // physics arguments
         MVector temp = data.inputValue(GravityMagnitude).asDouble() 
             * data.inputValue(GravityDirection).asVector(); // ugly?
-        shape->gravity = glm::vec3(temp[0], temp[1], temp[2]);
-        shape->mass = data.inputValue(Mass).asDouble();
-        shape->flubbiness = data.inputValue(Flubbiness).asDouble();
+        /*shape->gravity*/ glm::vec3 gravity = glm::vec3(temp[0], temp[1], temp[2]);
+        /*shape->mass*/ double mass = data.inputValue(Mass).asDouble();
+        /*shape->flubbiness*/ double flub = data.inputValue(Flubbiness).asDouble();
         // more later..
 
 
@@ -80,7 +82,7 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
             int idx = it_geo.index();
             MVector nrm = MVector(normals[idx]);
             MPoint pos = it_geo.position();
-            MPoint new_pos = pos + (nrm * inflation * env);
+            MPoint new_pos = pos + (nrm * env);
             it_geo.setPosition(new_pos);
         }
 
@@ -94,8 +96,17 @@ MStatus PushDeformerNode::initialize() {
     MFnTypedAttribute tAttr;
     MFnNumericAttribute nAttr;
     MFnUnitAttribute uAttr;
+    MFnEnumAttribute eAttr;
 
     // Create a numeric attributes
+    Menu = eAttr.create("Menu", "me", 0);
+    eAttr.setStorable(true);
+    eAttr.setKeyable(true);
+    eAttr.addField("Rigid", 0);
+    eAttr.addField("Linear", 1);
+    eAttr.addField("Quadratic", 2);
+
+
     GravityMagnitude = nAttr.create("GravityMagnitude", "gm", MFnNumericData::kDouble, 0.0);
     nAttr.setDefault(0.0);
     nAttr.setMin(0.0);
@@ -132,8 +143,9 @@ MStatus PushDeformerNode::initialize() {
     addAttribute(GravityDirection);
     addAttribute(Mass);
     addAttribute(Flubbiness);
+    addAttribute(Menu);
 
-    attributeAffects(CurrentTime, outputGeom);
+    attributeAffects(CurrentTime, outputGeom);  // does this do anything?
     attributeAffects(GravityMagnitude, outputGeom);
     attributeAffects(GravityDirection, outputGeom);
     attributeAffects(Mass, outputGeom);
