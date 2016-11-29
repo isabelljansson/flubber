@@ -4,9 +4,11 @@
 #ifdef __linux__
 #include <../armadillo/armadillo> 
 #include "../glm/glm/glm.hpp"
+#include "../glm/glm/ext.hpp"
 #elif __APPLE__
 #include <armadillo>
 #include "glm/glm.hpp"
+#include "glm/ext.hpp"
 #endif
 
 using namespace std;
@@ -19,7 +21,7 @@ class ParticleSystem {
         ~ParticleSystem();
 
         vector< vec3 >* getPos();
-        vector< vec3 >* getVelocity();
+        vector< vec3 >* getVel();
 
         void deform();
         void updatePos();
@@ -27,7 +29,8 @@ class ParticleSystem {
 
     private:
     	vector< vec3 > *x0;	// initial position
-    	vector< vec3 > *x1; 	// updated postion
+    	vector< vec3 > *x1; // updated postion
+
     	vector< vec3 > *v;
 
         vec3 initCom;
