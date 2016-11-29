@@ -102,6 +102,10 @@ void ParticleSystem::deform() {
 	}	
 }
 
+glm::vec3 ParticleSystem::getPosition(int i) {
+	return x1->at(i);
+}
+
 void ParticleSystem::updateVel()
 {
     // Euler integration
