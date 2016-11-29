@@ -52,15 +52,18 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
 
         // physics arguments
         MVector temp = data.inputValue(GravityMagnitude).asDouble() 
-            * data.inputValue(GravityDirection).asVector(); // ugly?
-        /*shape->gravity*/ glm::vec3 gravity = glm::vec3(temp[0], temp[1], temp[2]);
-        /*shape->mass*/ double mass = data.inputValue(Mass).asDouble();
-        /*shape->flubbiness*/ double flub = data.inputValue(Flubbiness).asDouble();
+            * data.inputValue(GravityDirection).asVector();
+        shape->gravity = glm::vec3(temp[0], temp[1], temp[2]);
+        temp = data.inputValue(InitialVelocity).asVector();
+        shape->initVel = glm::vec3(temp[0], temp[1], temp[2]);
+
+        shape->mass = data.inputValue(Mass).asDouble();
+        shape->flubbiness = data.inputValue(Flubbiness).asDouble();
         // more later..
 
 
         MString mess;
-        mess += mass;
+        mess += CurrentTime.asDouble();
         MGlobal::displayInfo(mess);
 
         

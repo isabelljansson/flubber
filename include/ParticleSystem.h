@@ -17,6 +17,20 @@ using namespace std;
 
 class ParticleSystem {
     public:
+
+        // Attributes
+        int mode;
+        double mass;
+        double dt; // Time step
+        double flubbiness;
+        double stiffness;
+        double elasticity;
+        double staticFriction;
+        double dynamicFriction;
+
+        glm::vec3 gravity;
+        glm::vec3 initVel;
+
         ParticleSystem(vector<glm::vec3>* x, glm::vec3 vel);
         ~ParticleSystem();
 
@@ -38,6 +52,5 @@ class ParticleSystem {
         glm::vec3 initCom;
 
         // Physics variables
-        float mass;
-        float dt; // Time step
+        
 };
