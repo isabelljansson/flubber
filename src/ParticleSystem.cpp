@@ -11,9 +11,10 @@ ParticleSystem::ParticleSystem(vector< glm::dvec3 >* x, glm::dvec3 vel) {
 
     // Set initial velocity vector
     v = new vector< glm::dvec3 >();
+    F = new vector< glm::dvec3 >();
     for (int i = 0; i < x0->size(); ++i) {
         v->push_back(vel);
-        //F->push_back(glm::dvec3(0.0,0.0,0.0));
+        F->push_back(glm::dvec3(0.0,0.0,0.0));
     }
     
     // Calculate initial center of mass
