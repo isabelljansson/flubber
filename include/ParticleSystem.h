@@ -28,6 +28,7 @@ class ParticleSystem {
         void updateForce();
         void updateVel();
         void updatePos();
+        void setDt(double);
         glm::vec3 getPosition(int i);
         glm::vec3 calcCom(vector< glm::vec3 >* x);
 

@@ -71,9 +71,10 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
         if (shape) {
           int updates = tDiff.value();
           int updatesPerTimeStep = 2;
+          //shape->setDt(1 / 24.0 / updatesPerTimeStep * SIGN(updates))
           for (int i = 0; i < abs(updates) * updatesPerTimeStep; ++i) {
-            //shape->stepPhysics(1 / 24.0 / updatesPerTimeStep * SIGN(updates));
-            //shape->deform(1 / 24.0 / updatesPerTimeStep * SIGN(updates));
+            //shape->applyForce(); //vad behövs för input?
+            //shape->deform();
           }
         }
         else
