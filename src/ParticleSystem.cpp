@@ -72,38 +72,40 @@ void ParticleSystem::deform() {
 	vector< glm::dvec3 > *g = x1; // Goal positions	
 	glm::dmat3 Rot;	  // Rotation matrix in glm format
 	
+    /* Calculate rotational matrix for all modes */
 
+    // Calculate center of mass for the deformed positions
+    newCom = calcCom(x1);
+
+    // Allocate
+    p = arma::mat(3, x1->size());
+    q = arma::mat(3, x1->size());
+
+    // Init orgPos and defPos matrices
+    for ( int i = 0; i < x1->size(); ++i ) {
+        p(0,i) = x1->at(i).x - newCom.x;
+        p(1,i) = x1->at(i).y - newCom.y;
+        p(2,i) = x1->at(i).z - newCom.z; 
+
+        q(0,i) = x0->at(i).x - initCom.x;
+        q(1,i) = x0->at(i).y - initCom.y;
+        q(2,i) = x0->at(i).z - initCom.z;
+    }
+
+    // Find covariance matrix Apq
+    // should be multiplied with x1->size()*massPerParticle
+    Apq = p * q.t();
+
+    // Find rotational part in Apq through Singular Value Decomposition
+    arma::svd(U,S,V,Apq);
+    R = V * U.t();
+    
 	switch (mode) {
 		case 0: // Rigid transformation
 
-			// Calculate center of mass for the deformed positions
-			newCom = calcCom(x1);
-
-			// Allocate
-			p = arma::mat(3, x1->size());
-			q = arma::mat(3, x1->size());
-			// Init orgPos and defPos matrices
-			for ( int i = 0; i < x1->size(); ++i ) {
-				p(0,i) = x1->at(i).x - newCom.x;
-				p(1,i) = x1->at(i).y - newCom.y;
-				p(2,i) = x1->at(i).z - newCom.z; 
-
-				q(0,i) = x0->at(i).x - initCom.x;
-				q(1,i) = x0->at(i).y - initCom.y;
-				q(2,i) = x0->at(i).z - initCom.z;
-			}
-
-			// Find covariance matrix Apq
-			// should be multiplied with x1->size()*massPerParticle
-			Apq = p * q.t();
-
-
-			// Find rotational part in Apq through Singular Value Decomposition
-			arma::svd(U,S,V,Apq);
-			R = V * U.t();
-
 			// Check if R has a reflection?
 
+            // Convert to glm
 			Rot = to_glm(R);
 
 			// Compute goal positions 
@@ -112,33 +114,6 @@ void ParticleSystem::deform() {
 	
 			break;
 		case 1: // Linear deformation
-
-			// Calculate center of mass for the deformed positions
-			newCom = calcCom(x1);
-
-			// Allocate
-			p = arma::mat(3, x1->size());
-			q = arma::mat(3, x1->size());
-
-			// Init orgPos and defPos matrices
-			for ( int i = 0; i < x1->size(); ++i ) {
-				p(0,i) = x1->at(i).x - newCom.x;
-				p(1,i) = x1->at(i).y - newCom.y;
-				p(2,i) = x1->at(i).z - newCom.z; 
-
-				q(0,i) = x0->at(i).x - initCom.x;
-				q(1,i) = x0->at(i).y - initCom.y;
-				q(2,i) = x0->at(i).z - initCom.z;
-			}
-
-			// Find covariance matrix Apq
-			// should be multiplied with x1->size()*massPerParticle
-			Apq = p * q.t();
-
-			// Check if R has a reflection?
-			// Find rotational part in Apq through Singular Value Decomposition
-			arma::svd(U,S,V,Apq);
-			R = V * U.t();
 
 			// Compute Aqq
 			Aqq = (q * q.t()).i(); 
@@ -160,33 +135,6 @@ void ParticleSystem::deform() {
 
 			break;
 		case 2: // Quadratic deformation
-			
-			// Calculate center of mass for the deformed positions
-			newCom = calcCom(x1);
-
-			// Allocate
-			p = arma::mat(3, x1->size());
-			q = arma::mat(3, x1->size());
-
-			// Init orgPos and defPos matrices
-			for ( int i = 0; i < x1->size(); ++i ) {
-				p(0,i) = x1->at(i).x - newCom.x;
-				p(1,i) = x1->at(i).y - newCom.y;
-				p(2,i) = x1->at(i).z - newCom.z; 
-
-				q(0,i) = x0->at(i).x - initCom.x;
-				q(1,i) = x0->at(i).y - initCom.y;
-				q(2,i) = x0->at(i).z - initCom.z;
-			}
-
-			// Find covariance matrix Apq
-			// should be multiplied with x1->size()*massPerParticle
-			Apq = p * q.t();
-
-			// Check if R has a reflection?
-			// Find rotational part in Apq through Singular Value Decomposition
-			arma::svd(U,S,V,Apq);
-			R = V * U.t();
 
 			RTilde = arma::mat(3,9);
 
