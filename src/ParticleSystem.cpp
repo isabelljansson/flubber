@@ -12,6 +12,7 @@ ParticleSystem::ParticleSystem(vector< glm::vec3 >* x, glm::vec3 vel) {
     v = new vector< glm::vec3 >();
     for (int i = 0; i < x0->size(); ++i) {
         v->push_back(vel);
+        F->push_back(vec3(0.0,0.0,0.0));
     }
 
     // Calculate initial center of mass
@@ -21,7 +22,14 @@ ParticleSystem::ParticleSystem(vector< glm::vec3 >* x, glm::vec3 vel) {
 
 
 ParticleSystem::~ParticleSystem() {
-    delete v;
+    delete[] v;
+    delete[] F;
+
+}
+
+void ParticleSystem::applyForces() {
+	// Update F
+
 
 }
 
@@ -106,8 +114,7 @@ glm::vec3 ParticleSystem::getPosition(int i) {
 	return x1->at(i);
 }
 
-void ParticleSystem::updateVel()
-{
+void ParticleSystem::updateVel() {
     // Euler integration
     for (int i = 0; i < v->size(); ++i) {
         v->at(i) += F->at(i) / mass * dt;
@@ -115,19 +122,16 @@ void ParticleSystem::updateVel()
     }
 }
 
-void ParticleSystem::updatePos()
-{
+void ParticleSystem::updatePos() {
     // Euler integration
-    for (int i = 0; i < x1->size(); ++i) {
+    for (int i = 0; i < x1->size(); ++i) 
         x1->at(i) += v->at(i) * dt;
-    }   
 }
 
 glm::vec3 ParticleSystem::calcCom(vector< glm::vec3 >* x) {
     glm::vec3 com = glm::vec3(0, 0, 0);
-    for(vector< glm::vec3 >::iterator it = x->begin(); it != x->end(); ++it) {
+    for(vector< glm::vec3 >::iterator it = x->begin(); it != x->end(); ++it) 
         com += *it;
-    }
     return com / (float)x->size();
 }
 
