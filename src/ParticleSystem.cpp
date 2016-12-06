@@ -24,8 +24,8 @@ ParticleSystem::ParticleSystem(vector< glm::dvec3 >* x, glm::dvec3 vel) {
 
 
 ParticleSystem::~ParticleSystem() {
-    delete[] v;
-    delete[] F;
+    delete v;
+    delete F;
 
 }
 
@@ -63,8 +63,10 @@ void ParticleSystem::deform() {
 	arma::mat Aqq; // Information about scaling
 	arma::mat A;	// Linear/quadratic transformation
 	arma::mat R;	// Rotation matrix in armadillo format
+	arma::mat RTilde;	// Bigger rotation matrix in armadillo format, for quadratic deformations
 	arma::mat U, V; // matrices for svd
 	arma::vec S; // vector for svd
+	arma::mat gTmp; 
 
 	glm::dvec3 newCom; // New center of mass
 	vector< glm::dvec3 > *g = x1; // Goal positions	
@@ -107,7 +109,7 @@ void ParticleSystem::deform() {
 
 			Rot = to_glm(R);
 
-			// Compute goal positions for 
+			// Compute goal positions 
 			for ( int i = 0; i < x1->size(); ++i )
 				g->at(i) = Rot * (x0->at(i) - initCom) + newCom;
 
@@ -144,10 +146,10 @@ void ParticleSystem::deform() {
 			// Scale A to ensure that det(A)=1
 			A /= pow(arma::det(A), 1/3);
 
+			// Check if R has a reflection?
 			// Find rotational part in Apq through Singular Value Decomposition
 			arma::svd(U,S,V,A);
 			R = V * U.t();
-
 			
 			R = beta * A + (1.0 - beta) * R;
 
@@ -155,7 +157,7 @@ void ParticleSystem::deform() {
 
 			Rot = to_glm(R);
 
-			// Compute goal positions for 
+			// Compute goal positions 
 			for ( int i = 0; i < x1->size(); ++i )
 				g->at(i) = Rot * (x0->at(i) - initCom) + newCom;
 
@@ -164,6 +166,63 @@ void ParticleSystem::deform() {
 			
 			// Calculate center of mass for the deformed positions
 			newCom = calcCom(x1);
+
+			// Allocate
+			p = arma::mat(3, x1->size());
+			q = arma::mat(9, x1->size());
+
+			// Init orgPos and defPos matrices
+			for ( int i = 0; i < x1->size(); ++i ) {
+				p(0,i) = x1->at(i).x - newCom.x;
+				p(1,i) = x1->at(i).y - newCom.y;
+				p(2,i) = x1->at(i).z - newCom.z; 
+
+				q(0,i) = x0->at(i).x - initCom.x;	// qx
+				q(1,i) = x0->at(i).y - initCom.y;	// qy
+				q(2,i) = x0->at(i).z - initCom.z;	// qz
+				q(3,i) = q(0,i)*q(0,i);				// qx^2
+				q(4,i) = q(1,i)*q(1,i);				// qy^2
+				q(5,i) = q(2,i)*q(2,i);				// qz^2
+				q(6,i) = q(0,i)*q(1,i);				// qx*qy
+				q(7,i) = q(1,i)*q(2,i);				// qy*qz
+				q(8,i) = q(2,i)*q(0,i);				// qz*qx
+			}
+
+			// Find covariance matrix Apq
+			// should be multiplied with x1->size()*massPerParticle
+			Apq = p * q.t();
+
+			// Compute Aqq
+			Aqq = (q * q.t()).i(); 
+
+			A = Apq * Aqq;
+
+			// Scale A to ensure that det(A)=1
+			// should we scale in the quadratic case as well?
+			A /= pow(arma::det(A), 1/3);
+
+			// Find rotational part in Apq through Singular Value Decomposition
+			arma::svd(U,S,V,A);
+			R = V * U.t();
+
+			RTilde = arma::mat(3,9);
+
+			RTilde 	<< R(0,0) << R(0,1) << R(0,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr
+					<< R(1,0) << R(1,1) << R(1,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr
+					<< R(2,0) << R(2,1) << R(2,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr;
+			
+			RTilde = beta * A + (1.0 - beta) * RTilde;
+
+			// Check if R has a reflection?
+
+			gTmp = RTilde * q;
+
+			// Compute goal positions
+			for ( int i = 0; i < x1->size(); ++i ) {
+				g->at(i).x = gTmp(0,i);
+				g->at(i).y = gTmp(1,i);
+				g->at(i).z = gTmp(2,i);
+			}
 
 			break; 
 		default:
@@ -235,4 +294,8 @@ glm::dmat3 ParticleSystem::to_glm(arma::mat M) {
 		for (int j = 0; j < 3; ++j)
 			M_glm[i][j] = M(i,j);
 	return M_glm;
+}
+
+glm::dvec3 to_glm(arma::vec v) {
+	return glm::vec3(v(0), v(1), v(2));
 }
