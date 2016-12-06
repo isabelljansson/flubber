@@ -2,7 +2,7 @@
 #include <vector>
 
 #ifdef __linux__
-#include <../armadillo/include/armadillo> 
+#include <armadillo> 
 #include "../glm/glm/glm.hpp"
 #include "../glm/glm/ext.hpp"
 #include "../glm/gtc/matrix_access.hpp"
@@ -25,9 +25,10 @@ class ParticleSystem {
         int mode;
         double mass;
         double flubbiness;
-        double stiffness;
+        double stiffness; // not used yet
         double elasticity;
         double friction;
+        double beta;
         //double staticFriction;
         //double dynamicFriction;
 

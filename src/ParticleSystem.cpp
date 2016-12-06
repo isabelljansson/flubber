@@ -12,6 +12,7 @@ ParticleSystem::ParticleSystem(vector< glm::dvec3 >* x, glm::dvec3 vel) {
     // Set initial velocity vector
     v = new vector< glm::dvec3 >();
     F = new vector< glm::dvec3 >();
+
     for (int i = 0; i < x0->size(); ++i) {
         v->push_back(vel);
         F->push_back(glm::dvec3(0.0,0.0,0.0));
@@ -19,7 +20,6 @@ ParticleSystem::ParticleSystem(vector< glm::dvec3 >* x, glm::dvec3 vel) {
     
     // Calculate initial center of mass
     initCom = calcCom(x0);
-    
 }
 
 
@@ -71,9 +71,6 @@ void ParticleSystem::deform() {
 	glm::dvec3 newCom; // New center of mass
 	vector< glm::dvec3 > *g = x1; // Goal positions	
 	glm::dmat3 Rot;	  // Rotation matrix in glm format
-
-
-	double beta = 0.5; // should be an input
 	
 
 	switch (mode) {
