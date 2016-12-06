@@ -99,7 +99,6 @@ void ParticleSystem::deform() {
 			Rot = to_glm(R);
 
 			// Compute goal positions for 
-			
 
 			for ( int i = 0; i < x1->size(); ++i )
 				g->at(i) = Rot * (x0->at(i) - initCom) + newCom;
@@ -117,8 +116,8 @@ void ParticleSystem::deform() {
 
 	// Update positions with the modified Euler integration schema
 	for (int i = 0; i < p.size(); ++i) {
-		//v->at(i) += ...
-		//x1->at(i) += ...
+		v->at(i) += /* multiply by alpha */ (g->at(i) - x1->at(i)) / dt;
+		x1->at(i) += /* multiply by alpha */ (g->at(i) - x1->at(i));
 	}	
 }
 
