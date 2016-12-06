@@ -2,7 +2,7 @@
 #include <vector>
 
 #ifdef __linux__
-#include <../armadillo/include/armadillo> 
+#include <armadillo> 
 #include "../glm/glm/glm.hpp"
 #include "../glm/glm/ext.hpp"
 #elif __APPLE__
