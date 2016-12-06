@@ -30,7 +30,13 @@ ParticleSystem::~ParticleSystem() {
 void ParticleSystem::applyForces() {
 	// Update F
 
+	/* --- Calculate new velocities and update positions, this is the deformed shape --- */
+	
+	// Update velocities
+	updateVel();
 
+	// Update positions
+	updatePos();
 }
 
 std::vector< glm::vec3 >* ParticleSystem::getPos() {
