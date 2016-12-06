@@ -8,3 +8,10 @@ armadillo/
 *.swp
 *.o
 out
+
+# Report
+*.aux
+*.blg
+*.bbl
+*.log
+*.pdf

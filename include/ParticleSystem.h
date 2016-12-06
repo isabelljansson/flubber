@@ -17,38 +17,47 @@ using namespace std;
 
 class ParticleSystem {
     public:
-        ParticleSystem(vector<glm::vec3>* x, glm::vec3 vel);
+
+        // Attributes
+        double dt; // Time step
+        int mode;
+        double mass;
+        double flubbiness;
+        double stiffness;
+        double elasticity;
+        double friction;
+        //double staticFriction;
+        //double dynamicFriction;
+
+        glm::dvec3 gravity;
+        glm::dvec3 initVel;
+
+        ParticleSystem(vector<glm::dvec3>* x, glm::dvec3 vel);
         ~ParticleSystem();
 
-        vector< glm::vec3 >* getPos();
-        vector< glm::vec3 >* getVel();
+        vector< glm::dvec3 >* getPos();
+        vector< glm::dvec3 >* getVel();
 
         void deform();
         void applyForces();
         void updateForce();
         void updateVel();
         void updatePos();
+
         void setDt(double);
-        glm::vec3 getPosition(int i);
-        glm::vec3 calcCom(vector< glm::vec3 >* x);
+        glm::dvec3 getPosition(int i);
+        glm::dvec3 calcCom(vector< glm::dvec3 >* x);
 
 
 
     private:
-    	vector< glm::vec3 > *x0; // Initial position
-    	vector< glm::vec3 > *x1; // Updated postion
+    	vector< glm::dvec3 > *x0; // Initial position
+    	vector< glm::dvec3 > *x1; // Updated postion
 
-    	vector< glm::vec3 > *v; // Velocity
-        vector< glm::vec3 > *F; // External forces
+    	vector< glm::dvec3 > *v; // Velocity
+        vector< glm::dvec3 > *F; // External forces
 
-        glm::vec3 initCom;
-        glm::mat3 to_glm(arma::fmat M);
+        glm::dvec3 initCom;
+        glm::dmat3 to_glm(arma::mat M);
 
-        // Physics variables
-        int mode;
-        double dt; // Time step
-        double mass;
-        double friction;
-        double elasticity;
-        glm::dvec3 gravity;
 };

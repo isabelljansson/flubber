@@ -1,6 +1,6 @@
 #include "../include/ParticleSystem.h"
 
-ParticleSystem::ParticleSystem(vector< glm::vec3 >* x, glm::vec3 vel) {
+ParticleSystem::ParticleSystem(vector< glm::dvec3 >* x, glm::dvec3 vel) {
     // Set initial position
     x0 = x;
     x1 = x;
@@ -10,15 +10,16 @@ ParticleSystem::ParticleSystem(vector< glm::vec3 >* x, glm::vec3 vel) {
     dt = 0;
 
     // Set initial velocity vector
-    v = new vector< glm::vec3 >();
+    v = new vector< glm::dvec3 >();
+    F = new vector< glm::dvec3 >();
     for (int i = 0; i < x0->size(); ++i) {
         v->push_back(vel);
-        F->push_back(glm::vec3(0.0,0.0,0.0));
+        F->push_back(glm::dvec3(0.0,0.0,0.0));
     }
-
+    
     // Calculate initial center of mass
     initCom = calcCom(x0);
-
+    
 }
 
 
@@ -45,31 +46,32 @@ void ParticleSystem::applyForces() {
 	updatePos();
 }
 
-std::vector< glm::vec3 >* ParticleSystem::getPos() {
+std::vector< glm::dvec3 >* ParticleSystem::getPos() {
 	// Är det verkligen x0 som ska returnas?
 	return x0;
 }
 
-std::vector< glm::vec3 >* ParticleSystem::getVel() {
+std::vector< glm::dvec3 >* ParticleSystem::getVel() {
 	return v;
 }
 
 void ParticleSystem::deform() {
 
-	arma::fmat q; 	// Original positions
-	arma::fmat p; 	// Deformed positions
-	arma::fmat Apq;	// Covariance matrix containing information about rotation
-	arma::fmat Aqq; // Information about scaling
-	arma::fmat A;	// Linear/quadratic transformation
-	arma::fmat R;	// Rotation matrix in armadillo format
-	arma::fmat U, V; // matrices for svd
-	arma::fvec S; // vector for svd
+	arma::mat q; 	// Original positions
+	arma::mat p; 	// Deformed positions
+	arma::mat Apq;	// Covariance matrix containing information about rotation
+	arma::mat Aqq; // Information about scaling
+	arma::mat A;	// Linear/quadratic transformation
+	arma::mat R;	// Rotation matrix in armadillo format
+	arma::mat U, V; // matrices for svd
+	arma::vec S; // vector for svd
 
-	glm::vec3 newCom; // New center of mass
-	vector< glm::vec3 > *g = x1; // Goal positions	
-	glm::mat3 Rot;	  // Rotation matrix in glm format
-	glm::mat3 At;	// Linear/quadratic transformation in glm format
+	glm::dvec3 newCom; // New center of mass
+	vector< glm::dvec3 > *g = x1; // Goal positions	
+	glm::dmat3 Rot;	  // Rotation matrix in glm format
 
+
+	double beta = 0.5; // should be an input
 	
 
 	switch (mode) {
@@ -79,8 +81,8 @@ void ParticleSystem::deform() {
 			newCom = calcCom(x1);
 
 			// Allocate
-			p = arma::fmat(3, x1->size());
-			q = arma::fmat(3, x1->size());
+			p = arma::mat(3, x1->size());
+			q = arma::mat(3, x1->size());
 
 			// Init orgPos and defPos matrices
 			for ( int i = 0; i < x1->size(); ++i ) {
@@ -116,8 +118,8 @@ void ParticleSystem::deform() {
 			newCom = calcCom(x1);
 
 			// Allocate
-			p = arma::fmat(3, x1->size());
-			q = arma::fmat(3, x1->size());
+			p = arma::mat(3, x1->size());
+			q = arma::mat(3, x1->size());
 
 			// Init orgPos and defPos matrices
 			for ( int i = 0; i < x1->size(); ++i ) {
@@ -147,12 +149,10 @@ void ParticleSystem::deform() {
 			R = V * U.t();
 
 			
-
-			//float beta = 0.5; // should be an input
-			//R = beta * A;// + (1.0 - beta) * Rot;
+			R = beta * A + (1.0 - beta) * R;
 
 			// Check if R has a reflection?
-			//At = to_glm(A);
+
 			Rot = to_glm(R);
 
 			// Compute goal positions for 
@@ -186,13 +186,13 @@ void ParticleSystem::updateForce()
 
         // Add collision impulse and friction
         if (x1->at(i).y <= 0 && v->at(i).y < 0) {
-            glm::vec3 normal = glm::vec3(0.0f, 1.0f, 0.0f);
-            glm::vec3 deltaV = v->at(i) - glm::vec3(0,0,0); // Floor is static
+            glm::dvec3 normal = glm::dvec3(0.0, 1.0, 0.0);
+            glm::dvec3 deltaV = v->at(i) - glm::dvec3(0,0,0); // Floor is static
 
-            glm::vec3 composant = normal * glm::dot(normal, deltaV); // deltaV composant in normal direction
+            glm::dvec3 composant = normal * glm::dot(normal, deltaV); // deltaV composant in normal direction
 
-            glm::vec3 collisionImpulse = -(elasticity + 1) * normal * glm::dot(normal, deltaV) * mass;
-            glm::vec3 frictionImpulse = -friction * (deltaV - composant) * mass;
+            glm::dvec3 collisionImpulse = -(elasticity + 1) * normal * glm::dot(normal, deltaV) * mass;
+            glm::dvec3 frictionImpulse = -friction * (deltaV - composant) * mass;
 
             F->at(i) += (collisionImpulse + frictionImpulse) / dt;
             x1->at(i).y = 0.01; // Set position to above object
@@ -200,7 +200,7 @@ void ParticleSystem::updateForce()
     }
 }
 
-glm::vec3 ParticleSystem::getPosition(int i) {
+glm::dvec3 ParticleSystem::getPosition(int i) {
 	return x1->at(i);
 }
 
@@ -208,7 +208,7 @@ void ParticleSystem::updateVel() {
     // Euler integration
     for (int i = 0; i < v->size(); ++i) {
         v->at(i) += F->at(i) / mass * dt;
-        F->at(i) = glm::vec3(0,0,0); // Reset all forces?
+        F->at(i) = glm::dvec3(0,0,0); // Reset all forces?
     }
 
     // Modified euler integration?
@@ -220,16 +220,17 @@ void ParticleSystem::updatePos() {
         x1->at(i) += v->at(i) * dt;
 }
 
-glm::vec3 ParticleSystem::calcCom(vector< glm::vec3 >* x) {
-    glm::vec3 com = glm::vec3(0, 0, 0);
-    for(vector< glm::vec3 >::iterator it = x->begin(); it != x->end(); ++it) 
+glm::dvec3 ParticleSystem::calcCom(vector< glm::dvec3 >* x) {
+    glm::dvec3 com = glm::dvec3(0, 0, 0);
+    for(vector< glm::dvec3 >::iterator it = x->begin(); it != x->end(); ++it) {
         com += *it;
-    return com / (float)x->size();
+    }
+    return com / (double) x->size();
 }
 
 // Convert Armadillo matrix to glm matrix
-glm::mat3 ParticleSystem::to_glm(arma::fmat M) {
-	glm::mat3 M_glm;
+glm::dmat3 ParticleSystem::to_glm(arma::mat M) {
+	glm::dmat3 M_glm;
 	for (int i = 0; i < 3; ++i)
 		for (int j = 0; j < 3; ++j)
 			M_glm[i][j] = M(i,j);
