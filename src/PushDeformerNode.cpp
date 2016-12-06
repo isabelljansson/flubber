@@ -12,6 +12,7 @@ MObject PushDeformerNode::Mode;
 MObject PushDeformerNode::CurrentTime;
 MObject PushDeformerNode::Mass;
 MObject PushDeformerNode::Flubbiness;
+MObject PushDeformerNode::Friction;
 
 bool PushDeformerNode::initFrame;
 ParticleSystem* PushDeformerNode::shape;
@@ -54,12 +55,13 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
         // physics arguments
         MVector temp = data.inputValue(GravityMagnitude).asDouble() 
             * data.inputValue(GravityDirection).asVector();
-        shape->gravity = glm::dvec3(temp[0], temp[1], temp[2]);
+        /*shape->gravity = glm::dvec3(temp[0], temp[1], temp[2]);
         temp = data.inputValue(InitialVelocity).asVector();
         shape->initVel = glm::dvec3(temp[0], temp[1], temp[2]);
 
         shape->mass = data.inputValue(Mass).asDouble();
         shape->flubbiness = data.inputValue(Flubbiness).asDouble();
+        shape->friction = data.inputValue(Friction).asDouble();*/
         // more later..
         //set current mode
 
@@ -143,6 +145,12 @@ MStatus PushDeformerNode::initialize() {
     nAttr.setMin(0.0);
     nAttr.setMax(1.0);
     nAttr.setChannelBox(true);
+
+    Friction = nAttr.create("Friction", "fr", MFnNumericData::kDouble, 0.0);
+    nAttr.setDefault(0.1);
+    nAttr.setMin(0.0);
+    nAttr.setMax(1.0);
+    nAttr.setChannelBox(true);
     
     InitialVelocity = nAttr.create("InitialVelocity", "iv", MFnNumericData::k3Double, 0.0);
     nAttr.setDefault(0.0);
@@ -157,6 +165,7 @@ MStatus PushDeformerNode::initialize() {
     addAttribute(GravityDirection);
     addAttribute(Mass);
     addAttribute(Flubbiness);
+    addAttribute(Friction);
     addAttribute(Mode);
     addAttribute(InitialVelocity);
     

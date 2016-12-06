@@ -19,14 +19,15 @@ class ParticleSystem {
     public:
 
         // Attributes
+        double dt; // Time step
         int mode;
         double mass;
-        double dt; // Time step
         double flubbiness;
         double stiffness;
         double elasticity;
-        double staticFriction;
-        double dynamicFriction;
+        double friction;
+        //double staticFriction;
+        //double dynamicFriction;
 
         glm::dvec3 gravity;
         glm::dvec3 initVel;
@@ -38,8 +39,13 @@ class ParticleSystem {
         vector< glm::dvec3 >* getVel();
 
         void deform();
+        void applyForces();
+        void updateForce();
         void updateVel();
         void updatePos();
+
+        void setDt(double);
+        glm::dvec3 getPosition(int i);
         glm::dvec3 calcCom(vector< glm::dvec3 >* x);
 
 
@@ -49,7 +55,7 @@ class ParticleSystem {
     	vector< glm::dvec3 > *x1; // Updated postion
 
     	vector< glm::dvec3 > *v; // Velocity
-        vector< glm::dvec3 > *F; // Force
+        vector< glm::dvec3 > *F; // External forces
 
         glm::dvec3 initCom;
         glm::dmat3 to_glm(arma::mat M);

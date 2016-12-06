@@ -4,6 +4,7 @@
 Thumbs.db
 
 glm/
+armadillo/
 *.swp
 *.o
 out
