@@ -23,9 +23,10 @@ class ParticleSystem {
         int mode;
         double mass;
         double flubbiness;
-        double stiffness;
+        double stiffness; // not used yet
         double elasticity;
         double friction;
+        double beta;
         //double staticFriction;
         //double dynamicFriction;
 

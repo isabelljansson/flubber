@@ -69,9 +69,6 @@ void ParticleSystem::deform() {
 	glm::dvec3 newCom; // New center of mass
 	vector< glm::dvec3 > *g = x1; // Goal positions	
 	glm::dmat3 Rot;	  // Rotation matrix in glm format
-
-
-	double beta = 0.5; // should be an input
 	
 
 	switch (mode) {
