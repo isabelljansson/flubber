@@ -82,7 +82,6 @@ void ParticleSystem::deform() {
 			// Allocate
 			p = arma::mat(3, x1->size());
 			q = arma::mat(3, x1->size());
-
 			// Init orgPos and defPos matrices
 			for ( int i = 0; i < x1->size(); ++i ) {
 				p(0,i) = x1->at(i).x - newCom.x;
@@ -98,6 +97,7 @@ void ParticleSystem::deform() {
 			// should be multiplied with x1->size()*massPerParticle
 			Apq = p * q.t();
 
+
 			// Find rotational part in Apq through Singular Value Decomposition
 			arma::svd(U,S,V,Apq);
 			R = V * U.t();
@@ -109,7 +109,7 @@ void ParticleSystem::deform() {
 			// Compute goal positions 
 			for ( int i = 0; i < x1->size(); ++i )
 				g->at(i) = Rot * (x0->at(i) - initCom) + newCom;
-
+	
 			break;
 		case 1: // Linear deformation
 
@@ -141,7 +141,7 @@ void ParticleSystem::deform() {
 			A = Apq * Aqq;
 
 			// Scale A to ensure that det(A)=1
-			A /= pow(arma::det(A), 1/3);
+			//A /= pow(arma::det(A), 1/3);
 
 			// Check if R has a reflection?
 			// Find rotational part in Apq through Singular Value Decomposition
@@ -227,7 +227,7 @@ void ParticleSystem::deform() {
 	}
 
 	// Update positions with the modified Euler integration schema
-	for (int i = 0; i < p.size(); ++i) {
+	for (int i = 0; i < x1->size(); ++i) {
 		v->at(i) += /* multiply by alpha */ (g->at(i) - x1->at(i)) / dt;
 		x1->at(i) += /* multiply by alpha */ (g->at(i) - x1->at(i));
 	}	

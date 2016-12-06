@@ -19,12 +19,14 @@ int main(int argc, char* argv[]) {
     object.beta = 0.5;
     object.elasticity = 0.5;
     object.dt = 0.1;
+    object.mode = 2;
 
     for (int i = 0; i < 3; i++) {
         object.applyForces();
         object.deform();
     }
 
+    //cout << "size: " << pos->size() << endl;
     // Write out new positions
     for ( int i = 0; i < pos->size(); i++) {
         cout << "pos: " << glm::to_string(object.getPosition(i)) << endl;
