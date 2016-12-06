@@ -5,7 +5,7 @@
 #include <armadillo> 
 #include "../glm/glm/glm.hpp"
 #include "../glm/glm/ext.hpp"
-#include "../glm/gtc/matrix_access.hpp"
+#include "../glm/glm/gtc/matrix_access.hpp"
 #elif __APPLE__
 #include <armadillo>
 #include "glm/glm.hpp"
