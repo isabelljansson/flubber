@@ -24,6 +24,8 @@ class ParticleSystem {
         vector< glm::vec3 >* getVel();
 
         void deform();
+        void applyForces();
+        void updateForce();
         void updateVel();
         void updatePos();
         glm::vec3 getPosition(int i);
@@ -36,13 +38,16 @@ class ParticleSystem {
     	vector< glm::vec3 > *x1; // Updated postion
 
     	vector< glm::vec3 > *v; // Velocity
-        vector< glm::vec3 > *F; // Force
+        vector< glm::vec3 > *F; // External forces
 
         glm::vec3 initCom;
         glm::mat3 to_glm(arma::fmat M);
 
         // Physics variables
-        float mass;
-        float dt; // Time step
         int mode;
+        double dt; // Time step
+        double mass;
+        double friction;
+        double elasticity;
+        glm::dvec3 gravity;
 };

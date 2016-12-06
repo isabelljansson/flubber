@@ -12,7 +12,7 @@ ParticleSystem::ParticleSystem(vector< glm::vec3 >* x, glm::vec3 vel) {
     v = new vector< glm::vec3 >();
     for (int i = 0; i < x0->size(); ++i) {
         v->push_back(vel);
-        F->push_back(vec3(0.0,0.0,0.0));
+        F->push_back(glm::vec3(0.0,0.0,0.0));
     }
 
     // Calculate initial center of mass
@@ -29,6 +29,7 @@ ParticleSystem::~ParticleSystem() {
 
 void ParticleSystem::applyForces() {
 	// Update F
+	updateForce();
 
 	/* --- Calculate new velocities and update positions, this is the deformed shape --- */
 	
@@ -116,6 +117,29 @@ void ParticleSystem::deform() {
 	}	
 }
 
+void ParticleSystem::updateForce()
+{
+    // Should set forces according to input and collisions etc
+    for (int i = 0; i < F->size(); ++i) {
+        // Gravity
+        F->at(i) = gravity * mass;
+
+        // Add collision impulse and friction
+        if (x1->at(i).y <= 0 && v->at(i).y < 0) {
+            glm::vec3 normal = glm::vec3(0.0f, 1.0f, 0.0f);
+            glm::vec3 deltaV = v->at(i) - glm::vec3(0,0,0); // Floor is static
+
+            glm::vec3 composant = normal * glm::dot(normal, deltaV); // deltaV composant in normal direction
+
+            glm::vec3 collisionImpulse = -(elasticity + 1) * normal * glm::dot(normal, deltaV) * mass;
+            glm::vec3 frictionImpulse = -friction * (deltaV - composant) * mass;
+
+            F->at(i) += (collisionImpulse + frictionImpulse) / dt;
+            x1->at(i).y = 0.01; // Set position to above object
+        }
+    }
+}
+
 glm::vec3 ParticleSystem::getPosition(int i) {
 	return x1->at(i);
 }
@@ -126,6 +150,8 @@ void ParticleSystem::updateVel() {
         v->at(i) += F->at(i) / mass * dt;
         F->at(i) = glm::vec3(0,0,0); // Reset all forces?
     }
+
+    // Modified euler integration?
 }
 
 void ParticleSystem::updatePos() {
