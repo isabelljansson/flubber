@@ -59,6 +59,8 @@ void ParticleSystem::deform() {
 	arma::fmat q; 	// Original positions
 	arma::fmat p; 	// Deformed positions
 	arma::fmat Apq;	// Covariance matrix containing information about rotation
+	arma::fmat Aqq; // Information about scaling
+	arma::fmat A;	// Linear/quadratic transformation
 	arma::fmat R;	// Rotation matrix in armadillo format
 	arma::fmat U, V; // matrices for svd
 	arma::fvec S; // vector for svd
@@ -66,11 +68,16 @@ void ParticleSystem::deform() {
 	glm::vec3 newCom; // New center of mass
 	vector< glm::vec3 > *g = x1; // Goal positions	
 	glm::mat3 Rot;	  // Rotation matrix in glm format
+	glm::mat3 At;	// Linear/quadratic transformation in glm format
 
-	newCom = calcCom(x1);
+	
 
 	switch (mode) {
 		case 0: // Rigid transformation
+
+			// Calculate center of mass for the deformed positions
+			newCom = calcCom(x1);
+
 			// Allocate
 			p = arma::fmat(3, x1->size());
 			q = arma::fmat(3, x1->size());
@@ -99,16 +106,65 @@ void ParticleSystem::deform() {
 			Rot = to_glm(R);
 
 			// Compute goal positions for 
-
 			for ( int i = 0; i < x1->size(); ++i )
 				g->at(i) = Rot * (x0->at(i) - initCom) + newCom;
 
 			break;
 		case 1: // Linear deformation
-			cout << "Linear transformation\n";
+
+			// Calculate center of mass for the deformed positions
+			newCom = calcCom(x1);
+
+			// Allocate
+			p = arma::fmat(3, x1->size());
+			q = arma::fmat(3, x1->size());
+
+			// Init orgPos and defPos matrices
+			for ( int i = 0; i < x1->size(); ++i ) {
+				p(0,i) = x1->at(i).x - newCom.x;
+				p(1,i) = x1->at(i).y - newCom.y;
+				p(2,i) = x1->at(i).z - newCom.z; 
+
+				q(0,i) = x0->at(i).x - initCom.x;
+				q(1,i) = x0->at(i).y - initCom.y;
+				q(2,i) = x0->at(i).z - initCom.z;
+			}
+
+			// Find covariance matrix Apq
+			// should be multiplied with x1->size()*massPerParticle
+			Apq = p * q.t();
+
+			// Compute Aqq
+			Aqq = (q * q.t()).i(); 
+
+			A = Apq * Aqq;
+
+			// Scale A to ensure that det(A)=1
+			A /= pow(arma::det(A), 1/3);
+
+			// Find rotational part in Apq through Singular Value Decomposition
+			arma::svd(U,S,V,A);
+			R = V * U.t();
+
+			
+
+			//float beta = 0.5; // should be an input
+			//R = beta * A;// + (1.0 - beta) * Rot;
+
+			// Check if R has a reflection?
+			//At = to_glm(A);
+			Rot = to_glm(R);
+
+			// Compute goal positions for 
+			for ( int i = 0; i < x1->size(); ++i )
+				g->at(i) = Rot * (x0->at(i) - initCom) + newCom;
+
 			break;
 		case 2: // Quadratic deformation
-			cout << "Quadratic transformation\n";
+			
+			// Calculate center of mass for the deformed positions
+			newCom = calcCom(x1);
+
 			break; 
 		default:
 			cout << "Error with mode\n";
