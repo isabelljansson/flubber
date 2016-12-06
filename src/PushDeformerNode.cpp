@@ -30,15 +30,16 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
 
         tPrev = data.inputValue(CurrentTime).asTime();
         
-        std::vector<glm::vec3> p0;
+        std::vector<glm::dvec3> *p0 = new std::vector<glm::dvec3>;
         MVector temp = data.inputValue(InitialVelocity).asVector(); // ugly?
-        glm::vec3 v0 = glm::vec3(temp[0], temp[1], temp[2]);
+        glm::dvec3 v0 = glm::dvec3(temp[0], temp[1], temp[2]);
         for (; !it_geo.isDone(); it_geo.next()) {
             MPoint vertexPos = it_geo.position() * local_to_world_matrix;
-            p0.push_back(glm::vec3(vertexPos.x, vertexPos.y, vertexPos.z));
+            p0->push_back(glm::dvec3(vertexPos.x, vertexPos.y, vertexPos.z));
         }
-        //shape = new ParticleSystem(p0, v0);
+        shape = new ParticleSystem(p0, v0);
         
+        delete p0;
         initFrame = false;
         return MS::kSuccess;
     }
@@ -53,9 +54,9 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
         // physics arguments
         MVector temp = data.inputValue(GravityMagnitude).asDouble() 
             * data.inputValue(GravityDirection).asVector();
-        shape->gravity = glm::vec3(temp[0], temp[1], temp[2]);
+        shape->gravity = glm::dvec3(temp[0], temp[1], temp[2]);
         temp = data.inputValue(InitialVelocity).asVector();
-        shape->initVel = glm::vec3(temp[0], temp[1], temp[2]);
+        shape->initVel = glm::dvec3(temp[0], temp[1], temp[2]);
 
         shape->mass = data.inputValue(Mass).asDouble();
         shape->flubbiness = data.inputValue(Flubbiness).asDouble();
@@ -64,9 +65,9 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
 
 
 
-        MString mess;
-        mess += CurrentTime.asDouble();
-        MGlobal::displayInfo(mess);
+        //MString mess;
+        //mess += CurrentTime.asDouble();
+        //MGlobal::displayInfo(mess);
 
         
         // Update the particle systems positions with dynamics simulation and
@@ -87,7 +88,7 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
         for (; !it_geo.isDone(); it_geo.next()) {
           int idx = it_geo.index();
 
-          //glm::vec3 p = shape->getPosition(idx);
+          //glm::dvec3 p = shape->getPosition(idx);
           //MPoint newPos(p.x, p.y, p.z);
           // Transform back to model coordinates
           //itGeo.setPosition(newPos * local_to_world_matrix_inv;

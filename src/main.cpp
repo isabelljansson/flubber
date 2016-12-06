@@ -6,10 +6,10 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    vector< glm::vec3 >* pos = new vector< glm::vec3 >;
-    pos->push_back(glm::vec3(0.0, 0.0, 0.0));
-    pos->push_back(glm::vec3(1.0, 1.0, 0.0));
-    glm::vec3 vel = glm::vec3(1, 0, 1);
+    vector< glm::dvec3 >* pos = new vector< glm::dvec3 >;
+    pos->push_back(glm::dvec3(0.0, 0.0, 0.0));
+    pos->push_back(glm::dvec3(1.0, 1.0, 0.0));
+    glm::vec3 vel = glm::dvec3(1, 0, 1);
     ParticleSystem object = ParticleSystem(pos, vel);
 
     cout << "Weeee" << endl;

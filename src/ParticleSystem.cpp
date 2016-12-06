@@ -1,6 +1,6 @@
 #include "../include/ParticleSystem.h"
 
-ParticleSystem::ParticleSystem(vector< glm::vec3 >* x, glm::vec3 vel) {
+ParticleSystem::ParticleSystem(vector< glm::dvec3 >* x, glm::dvec3 vel) {
     // Set initial position
     x0 = x;
     x1 = x;
@@ -9,7 +9,7 @@ ParticleSystem::ParticleSystem(vector< glm::vec3 >* x, glm::vec3 vel) {
     mode = 0;
 
     // Set initial velocity vector
-    v = new vector< glm::vec3 >();
+    v = new vector< glm::dvec3 >();
     for (int i = 0; i < x0->size(); ++i) {
         v->push_back(vel);
     }
@@ -25,35 +25,35 @@ ParticleSystem::~ParticleSystem() {
 
 }
 
-std::vector< glm::vec3 >* ParticleSystem::getPos() {
+std::vector< glm::dvec3 >* ParticleSystem::getPos() {
 	// Är det verkligen x0 som ska returnas?
 	return x0;
 }
 
-std::vector< glm::vec3 >* ParticleSystem::getVel() {
+std::vector< glm::dvec3 >* ParticleSystem::getVel() {
 	return v;
 }
 
 void ParticleSystem::deform() {
 
-	arma::fmat q; 	// Original positions
-	arma::fmat p; 	// Deformed positions
-	arma::fmat Apq;	// Covariance matrix containing information about rotation
-	arma::fmat R;	// Rotation matrix in armadillo format
-	arma::fmat U, V; // matrices for svd
-	arma::fvec S; // vector for svd
+	arma::mat q; 	// Original positions
+	arma::mat p; 	// Deformed positions
+	arma::mat Apq;	// Covariance matrix containing information about rotation
+	arma::mat R;	// Rotation matrix in armadillo format
+	arma::mat U, V; // matrices for svd
+	arma::vec S; // vector for svd
 
-	glm::vec3 newCom; // New center of mass
-	vector< glm::vec3 > *g = x1; // Goal positions	
-	glm::mat3 Rot;	  // Rotation matrix in glm format
+	glm::dvec3 newCom; // New center of mass
+	vector< glm::dvec3 > *g = x1; // Goal positions	
+	glm::dmat3 Rot;	  // Rotation matrix in glm format
 
 	newCom = calcCom(x1);
 
 	switch (mode) {
 		case 0: // Rigid transformation
 			// Allocate
-			p = arma::fmat(3, x1->size());
-			q = arma::fmat(3, x1->size());
+			p = arma::mat(3, x1->size());
+			q = arma::mat(3, x1->size());
 
 			// Init orgPos and defPos matrices
 			for ( int i = 0; i < x1->size(); ++i ) {
@@ -107,7 +107,7 @@ void ParticleSystem::updateVel()
     // Euler integration
     for (int i = 0; i < v->size(); ++i) {
         v->at(i) += F->at(i) / mass * dt;
-        F->at(i) = glm::vec3(0,0,0); // Reset all forces?
+        F->at(i) = glm::dvec3(0,0,0); // Reset all forces?
     }
 }
 
@@ -119,17 +119,17 @@ void ParticleSystem::updatePos()
     }   
 }
 
-glm::vec3 ParticleSystem::calcCom(vector< glm::vec3 >* x) {
-    glm::vec3 com = glm::vec3(0, 0, 0);
-    for(vector< glm::vec3 >::iterator it = x->begin(); it != x->end(); ++it) {
+glm::dvec3 ParticleSystem::calcCom(vector< glm::dvec3 >* x) {
+    glm::dvec3 com = glm::dvec3(0, 0, 0);
+    for(vector< glm::dvec3 >::iterator it = x->begin(); it != x->end(); ++it) {
         com += *it;
     }
-    return com / (float)x->size();
+    return com / (double) x->size();
 }
 
 // Convert Armadillo matrix to glm matrix
-glm::mat3 ParticleSystem::to_glm(arma::fmat M) {
-	glm::mat3 M_glm;
+glm::dmat3 ParticleSystem::to_glm(arma::mat M) {
+	glm::dmat3 M_glm;
 	for (int i = 0; i < 3; ++i)
 		for (int j = 0; j < 3; ++j)
 			M_glm[i][j] = M(i,j);
