@@ -135,6 +135,11 @@ void ParticleSystem::deform() {
 			// should be multiplied with x1->size()*massPerParticle
 			Apq = p * q.t();
 
+			// Check if R has a reflection?
+			// Find rotational part in Apq through Singular Value Decomposition
+			arma::svd(U,S,V,Apq);
+			R = V * U.t();
+
 			// Compute Aqq
 			Aqq = (q * q.t()).i(); 
 
@@ -142,11 +147,6 @@ void ParticleSystem::deform() {
 
 			// Scale A to ensure that det(A)=1
 			A /= pow(arma::det(A), 1/3);
-
-			// Check if R has a reflection?
-			// Find rotational part in Apq through Singular Value Decomposition
-			arma::svd(U,S,V,A);
-			R = V * U.t();
 			
 			R = beta * A + (1.0 - beta) * R;
 
@@ -166,7 +166,7 @@ void ParticleSystem::deform() {
 
 			// Allocate
 			p = arma::mat(3, x1->size());
-			q = arma::mat(9, x1->size());
+			q = arma::mat(3, x1->size());
 
 			// Init orgPos and defPos matrices
 			for ( int i = 0; i < x1->size(); ++i ) {
@@ -174,6 +174,30 @@ void ParticleSystem::deform() {
 				p(1,i) = x1->at(i).y - newCom.y;
 				p(2,i) = x1->at(i).z - newCom.z; 
 
+				q(0,i) = x0->at(i).x - initCom.x;
+				q(1,i) = x0->at(i).y - initCom.y;
+				q(2,i) = x0->at(i).z - initCom.z;
+			}
+
+			// Find covariance matrix Apq
+			// should be multiplied with x1->size()*massPerParticle
+			Apq = p * q.t();
+
+			// Check if R has a reflection?
+			// Find rotational part in Apq through Singular Value Decomposition
+			arma::svd(U,S,V,Apq);
+			R = V * U.t();
+
+			RTilde = arma::mat(3,9);
+
+			RTilde 	<< R(0,0) << R(0,1) << R(0,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr
+					<< R(1,0) << R(1,1) << R(1,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr
+					<< R(2,0) << R(2,1) << R(2,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr;
+
+			q = arma::mat(9, x1->size());
+
+			// Init orgPos and defPos matrices
+			for ( int i = 0; i < x1->size(); ++i ) {
 				q(0,i) = x0->at(i).x - initCom.x;	// qx
 				q(1,i) = x0->at(i).y - initCom.y;	// qy
 				q(2,i) = x0->at(i).z - initCom.z;	// qz
@@ -184,12 +208,7 @@ void ParticleSystem::deform() {
 				q(7,i) = q(1,i)*q(2,i);				// qy*qz
 				q(8,i) = q(2,i)*q(0,i);				// qz*qx
 			}
-
-			// Find covariance matrix Apq
-			// should be multiplied with x1->size()*massPerParticle
 			Apq = p * q.t();
-
-			// Compute Aqq
 			Aqq = (q * q.t()).i(); 
 
 			A = Apq * Aqq;
@@ -199,14 +218,6 @@ void ParticleSystem::deform() {
 			//A /= pow(arma::det(A), 1/3);
 
 			// Find rotational part in Apq through Singular Value Decomposition
-			arma::svd(U,S,V,A);
-			R = V * U.t();
-
-			RTilde = arma::mat(3,9);
-
-			RTilde 	<< R(0,0) << R(0,1) << R(0,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr
-					<< R(1,0) << R(1,1) << R(1,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr
-					<< R(2,0) << R(2,1) << R(2,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr;
 			
 			RTilde = beta * A + (1.0 - beta) * RTilde;
 

@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
     object.beta = 0.5;
     object.elasticity = 0.5;
     object.dt = 0.1;
-    object.mode = 2;
+    object.mode = 1;
 
     for (int i = 0; i < 3; i++) {
         object.applyForces();
