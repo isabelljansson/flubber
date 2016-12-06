@@ -141,7 +141,7 @@ void ParticleSystem::deform() {
 			A = Apq * Aqq;
 
 			// Scale A to ensure that det(A)=1
-			//A /= pow(arma::det(A), 1/3);
+			A /= pow(arma::det(A), 1/3);
 
 			// Check if R has a reflection?
 			// Find rotational part in Apq through Singular Value Decomposition
@@ -196,7 +196,7 @@ void ParticleSystem::deform() {
 
 			// Scale A to ensure that det(A)=1
 			// should we scale in the quadratic case as well?
-			A /= pow(arma::det(A), 1/3);
+			//A /= pow(arma::det(A), 1/3);
 
 			// Find rotational part in Apq through Singular Value Decomposition
 			arma::svd(U,S,V,A);
