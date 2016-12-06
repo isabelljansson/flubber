@@ -55,7 +55,7 @@ class PushDeformerNode : public MPxDeformerNode {
 		// ... stiffness, elasticity, staticfriction, dynamicfriction, something more?
 
 	private:
-		static ParticleSystem* shape;
+		static ParticleSystem* mesh;
 		static bool initFrame;
 		static MTime tPrev;
 

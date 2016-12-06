@@ -7,7 +7,7 @@ loadPlugin("/Users/Jonte/Documents/flubber/build/src/sampleplugin.bundle");
 
 polyPlane -n myPlane -sx 1 -sy 1 -h 10 -w 10;
 //select -r myPlane ;
-move -r 0 2.0 0;
+move -r 0 0.0 0;
 
 polySphere -n mySphere -r 1 -sx 20 -sy 20 -ax 0 1 0 -cuv 2 -ch 1;
 
