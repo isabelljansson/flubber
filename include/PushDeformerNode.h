@@ -50,6 +50,8 @@ class PushDeformerNode : public MPxDeformerNode {
 		static MObject Mass;
 		static MObject Flubbiness;
 		static MObject Friction;
+		static MObject Beta;
+		static MObject Elasticity;
 		// ... stiffness, elasticity, staticfriction, dynamicfriction, something more?
 
 	private:

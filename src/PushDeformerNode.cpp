@@ -13,6 +13,8 @@ MObject PushDeformerNode::CurrentTime;
 MObject PushDeformerNode::Mass;
 MObject PushDeformerNode::Flubbiness;
 MObject PushDeformerNode::Friction;
+MObject PushDeformerNode::Beta;
+MObject PushDeformerNode::Elasticity;
 
 bool PushDeformerNode::initFrame;
 ParticleSystem* PushDeformerNode::shape;
@@ -55,13 +57,17 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
         // physics arguments
         MVector temp = data.inputValue(GravityMagnitude).asDouble() 
             * data.inputValue(GravityDirection).asVector();
-        /*shape->gravity = glm::dvec3(temp[0], temp[1], temp[2]);
+        shape->gravity = glm::dvec3(temp[0], temp[1], temp[2]);
         temp = data.inputValue(InitialVelocity).asVector();
         shape->initVel = glm::dvec3(temp[0], temp[1], temp[2]);
 
         shape->mass = data.inputValue(Mass).asDouble();
         shape->flubbiness = data.inputValue(Flubbiness).asDouble();
-        shape->friction = data.inputValue(Friction).asDouble();*/
+        shape->friction = data.inputValue(Friction).asDouble();
+        shape->beta = data.inputValue(Beta).asDouble();
+        shape->elasticity = data.inputValue(Elasticity).asDouble();
+
+
         // more later..
         //set current mode
 
@@ -74,12 +80,13 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
         
         // Update the particle systems positions with dynamics simulation and
         // Shape matching
+        int updates = tDiff.value();
+        int updatesPerTimeStep = 2;
+        shape->dt = 1 / 24.0 / updatesPerTimeStep * SIGN(updates);
         if (shape) {
-          int updates = tDiff.value();
-          int updatesPerTimeStep = 2;
           for (int i = 0; i < abs(updates) * updatesPerTimeStep; ++i) {
-            //shape->stepPhysics(1 / 24.0 / updatesPerTimeStep * SIGN(updates));
-            //shape->deform(1 / 24.0 / updatesPerTimeStep * SIGN(updates));
+            //shape->applyForces();
+            //shape->deform();
           }
         }
         else
@@ -90,10 +97,10 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
         for (; !it_geo.isDone(); it_geo.next()) {
           int idx = it_geo.index();
 
-          //glm::dvec3 p = shape->getPosition(idx);
-          //MPoint newPos(p.x, p.y, p.z);
+          glm::dvec3 p = shape->getPosition(idx);
+          
           // Transform back to model coordinates
-          //itGeo.setPosition(newPos * local_to_world_matrix_inv;
+          it_geo.setPosition(MPoint(p.x, p.y, p.z) * local_to_world_matrix_inv);
         }
 
         return MS::kSuccess;
@@ -151,6 +158,18 @@ MStatus PushDeformerNode::initialize() {
     nAttr.setMin(0.0);
     nAttr.setMax(1.0);
     nAttr.setChannelBox(true);
+
+    Beta = nAttr.create("Beta", "be", MFnNumericData::kDouble, 0.0);
+    nAttr.setDefault(0.5);
+    nAttr.setMin(0.0);
+    nAttr.setMax(1.0);
+    nAttr.setChannelBox(true);
+
+    Elasticity = nAttr.create("Elasticity", "el", MFnNumericData::kDouble, 0.0);
+    nAttr.setDefault(0.5);
+    nAttr.setMin(0.0);
+    nAttr.setMax(1.0);
+    nAttr.setChannelBox(true);
     
     InitialVelocity = nAttr.create("InitialVelocity", "iv", MFnNumericData::k3Double, 0.0);
     nAttr.setDefault(0.0);
@@ -166,6 +185,8 @@ MStatus PushDeformerNode::initialize() {
     addAttribute(Mass);
     addAttribute(Flubbiness);
     addAttribute(Friction);
+    addAttribute(Beta);
+    addAttribute(Elasticity);
     addAttribute(Mode);
     addAttribute(InitialVelocity);
     
