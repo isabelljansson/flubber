@@ -11,9 +11,10 @@ MObject PushDeformerNode::Mode;
 
 MObject PushDeformerNode::CurrentTime;
 MObject PushDeformerNode::Mass;
-MObject PushDeformerNode::Flubbiness;
+MObject PushDeformerNode::Stiffness; // stiffness
+MObject PushDeformerNode::Bounciness;
 MObject PushDeformerNode::Friction;
-MObject PushDeformerNode::Beta;
+MObject PushDeformerNode::Deformation; // deformation
 MObject PushDeformerNode::Elasticity;
 
 bool PushDeformerNode::initFrame;
@@ -33,16 +34,15 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
 
         tPrev = data.inputValue(CurrentTime).asTime();
         
-        std::vector<glm::dvec3> *p0 = new std::vector<glm::dvec3>;
+        std::vector<glm::dvec3> p0;
         MVector temp = data.inputValue(InitialVelocity).asVector(); // ugly?
         glm::dvec3 v0 = glm::dvec3(temp[0], temp[1], temp[2]);
         for (; !it_geo.isDone(); it_geo.next()) {
             MPoint vertexPos = it_geo.position() * local_to_world_matrix;
-            p0->push_back(glm::dvec3(vertexPos.x, vertexPos.y, vertexPos.z));
+            p0.push_back(glm::dvec3(vertexPos.x, vertexPos.y, vertexPos.z));
         }
         mesh = new ParticleSystem(p0, v0);
         
-        delete p0;
         initFrame = false;
         return MS::kSuccess;
     }
@@ -62,10 +62,12 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
         mesh->initVel = glm::dvec3(temp[0], temp[1], temp[2]);
         
         mesh->mass = data.inputValue(Mass).asDouble();
-        mesh->flubbiness = data.inputValue(Flubbiness).asDouble();
+        mesh->stiffness = data.inputValue(Stiffness).asDouble();
+        mesh->flubbiness = data.inputValue(Bounciness).asDouble();
         mesh->friction = data.inputValue(Friction).asDouble();
-        mesh->beta = data.inputValue(Beta).asDouble();
+        mesh->beta = data.inputValue(Deformation).asDouble();
         mesh->elasticity = data.inputValue(Elasticity).asDouble();
+        mesh->mode = data.inputValue(Mode).asInt();
         
         // Update the particle systems positions with dynamics simulation and
         // Shape matching
@@ -137,7 +139,13 @@ MStatus PushDeformerNode::initialize() {
     nAttr.setMax(10.0);
     nAttr.setChannelBox(true);
 
-    Flubbiness = nAttr.create("Flubbiness", "fb", MFnNumericData::kDouble, 0.0);
+    Stiffness = nAttr.create("Stiffness", "st", MFnNumericData::kDouble, 0.0);
+    nAttr.setDefault(0.5);
+    nAttr.setMin(0.0);
+    nAttr.setMax(1.0);
+    nAttr.setChannelBox(true);
+
+    Bounciness = nAttr.create("Bounciness", "bo", MFnNumericData::kDouble, 0.0);
     nAttr.setDefault(0.5);
     nAttr.setMin(0.0);
     nAttr.setMax(1.0);
@@ -149,7 +157,7 @@ MStatus PushDeformerNode::initialize() {
     nAttr.setMax(1.0);
     nAttr.setChannelBox(true);
 
-    Beta = nAttr.create("Beta", "be", MFnNumericData::kDouble, 0.0);
+    Deformation = nAttr.create("Deformation", "de", MFnNumericData::kDouble, 0.0);
     nAttr.setDefault(0.5);
     nAttr.setMin(0.0);
     nAttr.setMax(1.0);
@@ -173,9 +181,10 @@ MStatus PushDeformerNode::initialize() {
     addAttribute(GravityMagnitude);
     addAttribute(GravityDirection);
     addAttribute(Mass);
-    addAttribute(Flubbiness);
+    addAttribute(Stiffness);
+    addAttribute(Bounciness);
     addAttribute(Friction);
-    addAttribute(Beta);
+    addAttribute(Deformation);
     addAttribute(Elasticity);
     addAttribute(Mode);
     addAttribute(InitialVelocity);
@@ -184,9 +193,10 @@ MStatus PushDeformerNode::initialize() {
     attributeAffects(GravityMagnitude, outputGeom);
     attributeAffects(GravityDirection, outputGeom);
     attributeAffects(Mass, outputGeom);
-    attributeAffects(Flubbiness, outputGeom);
+    attributeAffects(Stiffness, outputGeom);
+    attributeAffects(Bounciness, outputGeom);
     attributeAffects(Friction, outputGeom);
-    attributeAffects(Beta, outputGeom);
+    attributeAffects(Deformation, outputGeom);
     attributeAffects(Elasticity, outputGeom);
     attributeAffects(Mode, outputGeom);
     attributeAffects(InitialVelocity, outputGeom);
