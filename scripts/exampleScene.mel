@@ -15,3 +15,11 @@ move -r 0 5.0 0;
 
 select -r mySphere;
 deformer -type flubber;
+
+// Connect the dynamics attributes to the deformer node
+// Gravity Direction
+connectAttr -f gravityField1.direction shapeMatchDeformer1.GravityDirection;
+// Gravity Magnitude
+connectAttr -f gravityField1.magnitude shapeMatchDeformer1.GravityMagnitude;
+// Time
+connectAttr -f time1.outTime shapeMatchDeformer1.CurrentTime;
