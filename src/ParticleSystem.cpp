@@ -7,7 +7,7 @@ ParticleSystem::ParticleSystem(vector< glm::dvec3 > x, glm::dvec3 vel) {
 
     // Set intitial mode to a rigid transformation
     mode = 0;
-    dt = 0.033;
+    dt = 0.0;
 
     // Set initial velocity vector
     v = new vector< glm::dvec3 >();
@@ -221,7 +221,7 @@ void ParticleSystem::updateForce()
     // Should set forces according to input and collisions etc
     for (int i = 0; i < F->size(); ++i) {
         // Gravity
-        F->at(i) = gravity * mass / x1.size();
+        F->at(i) = gravity * mass / (double) x1.size();
 
         // Add collision impulse and friction
         if (x1.at(i).y <= 0) {
@@ -234,7 +234,7 @@ void ParticleSystem::updateForce()
             glm::dvec3 frictionImpulse = -friction * (deltaV - composant) * (mass / x1.size());
 
             F->at(i) += (collisionImpulse + frictionImpulse) / dt;
-            x1.at(i).y = 0.01; // Set position to above object
+            
         }
         cout << "F: " << to_string(F->at(i)) << endl;
     }
@@ -260,6 +260,8 @@ void ParticleSystem::updatePos() {
         x1.at(i) += v->at(i) * dt;
         cout << "x0: " << to_string(x0.at(i)) << endl;
     	cout << "x1: " << to_string(x1.at(i)) << endl;
+        if (x1.at(i).y <= 0) 
+            x1.at(i).y = 0.01; // Set position to above object
     }
 }
 

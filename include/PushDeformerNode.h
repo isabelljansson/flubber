@@ -49,6 +49,7 @@ class PushDeformerNode : public MPxDeformerNode {
 		static MObject CurrentTime;
 		static MObject Mass;
 		static MObject Stiffness;
+		static MObject Bounciness;
 		static MObject Friction;
 		static MObject Deformation;
 		static MObject Elasticity;
