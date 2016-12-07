@@ -72,38 +72,40 @@ void ParticleSystem::deform() {
 	vector< glm::dvec3 > *g = x1; // Goal positions	
 	glm::dmat3 Rot;	  // Rotation matrix in glm format
 	
+    /* Calculate rotational matrix for all modes */
 
+    // Calculate center of mass for the deformed positions
+    newCom = calcCom(x1);
+
+    // Allocate
+    p = arma::mat(3, x1->size());
+    q = arma::mat(3, x1->size());
+
+    // Init orgPos and defPos matrices
+    for ( int i = 0; i < x1->size(); ++i ) {
+        p(0,i) = x1->at(i).x - newCom.x;
+        p(1,i) = x1->at(i).y - newCom.y;
+        p(2,i) = x1->at(i).z - newCom.z; 
+
+        q(0,i) = x0->at(i).x - initCom.x;
+        q(1,i) = x0->at(i).y - initCom.y;
+        q(2,i) = x0->at(i).z - initCom.z;
+    }
+
+    // Find covariance matrix Apq
+    // should be multiplied with x1->size()*massPerParticle
+    Apq = p * q.t();
+
+    // Find rotational part in Apq through Singular Value Decomposition
+    arma::svd(U,S,V,Apq);
+    R = V * U.t();
+    
 	switch (mode) {
 		case 0: // Rigid transformation
 
-			// Calculate center of mass for the deformed positions
-			newCom = calcCom(x1);
-
-			// Allocate
-			p = arma::mat(3, x1->size());
-			q = arma::mat(3, x1->size());
-			// Init orgPos and defPos matrices
-			for ( int i = 0; i < x1->size(); ++i ) {
-				p(0,i) = x1->at(i).x - newCom.x;
-				p(1,i) = x1->at(i).y - newCom.y;
-				p(2,i) = x1->at(i).z - newCom.z; 
-
-				q(0,i) = x0->at(i).x - initCom.x;
-				q(1,i) = x0->at(i).y - initCom.y;
-				q(2,i) = x0->at(i).z - initCom.z;
-			}
-
-			// Find covariance matrix Apq
-			// should be multiplied with x1->size()*massPerParticle
-			Apq = p * q.t();
-
-
-			// Find rotational part in Apq through Singular Value Decomposition
-			arma::svd(U,S,V,Apq);
-			R = V * U.t();
-
 			// Check if R has a reflection?
 
+            // Convert to glm
 			Rot = to_glm(R);
 
 			// Compute goal positions 
@@ -112,28 +114,6 @@ void ParticleSystem::deform() {
 	
 			break;
 		case 1: // Linear deformation
-
-			// Calculate center of mass for the deformed positions
-			newCom = calcCom(x1);
-
-			// Allocate
-			p = arma::mat(3, x1->size());
-			q = arma::mat(3, x1->size());
-
-			// Init orgPos and defPos matrices
-			for ( int i = 0; i < x1->size(); ++i ) {
-				p(0,i) = x1->at(i).x - newCom.x;
-				p(1,i) = x1->at(i).y - newCom.y;
-				p(2,i) = x1->at(i).z - newCom.z; 
-
-				q(0,i) = x0->at(i).x - initCom.x;
-				q(1,i) = x0->at(i).y - initCom.y;
-				q(2,i) = x0->at(i).z - initCom.z;
-			}
-
-			// Find covariance matrix Apq
-			// should be multiplied with x1->size()*massPerParticle
-			Apq = p * q.t();
 
 			// Compute Aqq
 			Aqq = (q * q.t()).i(); 
@@ -160,20 +140,17 @@ void ParticleSystem::deform() {
 
 			break;
 		case 2: // Quadratic deformation
-			
-			// Calculate center of mass for the deformed positions
-			newCom = calcCom(x1);
 
-			// Allocate
-			p = arma::mat(3, x1->size());
+			RTilde = arma::mat(3,9);
+
+			RTilde 	<< R(0,0) << R(0,1) << R(0,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr
+					<< R(1,0) << R(1,1) << R(1,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr
+					<< R(2,0) << R(2,1) << R(2,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr;
+
 			q = arma::mat(9, x1->size());
 
 			// Init orgPos and defPos matrices
 			for ( int i = 0; i < x1->size(); ++i ) {
-				p(0,i) = x1->at(i).x - newCom.x;
-				p(1,i) = x1->at(i).y - newCom.y;
-				p(2,i) = x1->at(i).z - newCom.z; 
-
 				q(0,i) = x0->at(i).x - initCom.x;	// qx
 				q(1,i) = x0->at(i).y - initCom.y;	// qy
 				q(2,i) = x0->at(i).z - initCom.z;	// qz
@@ -184,12 +161,7 @@ void ParticleSystem::deform() {
 				q(7,i) = q(1,i)*q(2,i);				// qy*qz
 				q(8,i) = q(2,i)*q(0,i);				// qz*qx
 			}
-
-			// Find covariance matrix Apq
-			// should be multiplied with x1->size()*massPerParticle
 			Apq = p * q.t();
-
-			// Compute Aqq
 			Aqq = (q * q.t()).i(); 
 
 			A = Apq * Aqq;
@@ -199,14 +171,6 @@ void ParticleSystem::deform() {
 			//A /= pow(arma::det(A), 1/3);
 
 			// Find rotational part in Apq through Singular Value Decomposition
-			arma::svd(U,S,V,A);
-			R = V * U.t();
-
-			RTilde = arma::mat(3,9);
-
-			RTilde 	<< R(0,0) << R(0,1) << R(0,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr
-					<< R(1,0) << R(1,1) << R(1,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr
-					<< R(2,0) << R(2,1) << R(2,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr;
 			
 			RTilde = beta * A + (1.0 - beta) * RTilde;
 
