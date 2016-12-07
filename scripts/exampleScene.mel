@@ -4,7 +4,6 @@
 loadPlugin("/Users/Jonte/Documents/flubber/build/src/sampleplugin.bundle");
 
 // Create a plane
-
 polyPlane -n myPlane -sx 1 -sy 1 -h 10 -w 10;
 //select -r myPlane ;
 move -r 0 0.0 0;
@@ -14,12 +13,16 @@ polySphere -n mySphere -r 1 -sx 20 -sy 20 -ax 0 1 0 -cuv 2 -ch 1;
 move -r 0 5.0 0;
 
 select -r mySphere;
+CreatePassiveRigidBody;
+Gravity;
+
+select -r mySphere;
 deformer -type flubber;
 
 // Connect the dynamics attributes to the deformer node
 // Gravity Direction
-connectAttr -f gravityField1.direction shapeMatchDeformer1.GravityDirection;
+connectAttr -f gravityField1.direction flubber1.GravityDirection;
 // Gravity Magnitude
-connectAttr -f gravityField1.magnitude shapeMatchDeformer1.GravityMagnitude;
+connectAttr -f gravityField1.magnitude flubber1.GravityMagnitude;
 // Time
-connectAttr -f time1.outTime shapeMatchDeformer1.CurrentTime;
+connectAttr -f time1.outTime flubber1.CurrentTime;

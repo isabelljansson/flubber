@@ -7,7 +7,7 @@ ParticleSystem::ParticleSystem(vector< glm::dvec3 >* x, glm::dvec3 vel) {
 
     // Set intitial mode to a rigid transformation
     mode = 0;
-    dt = 0;
+    dt = 0.033;
 
     // Set initial velocity vector
     v = new vector< glm::dvec3 >();
