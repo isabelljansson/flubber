@@ -1,6 +1,6 @@
 #include "../include/ParticleSystem.h"
 
-ParticleSystem::ParticleSystem(vector< glm::dvec3 >* x, glm::dvec3 vel) {
+ParticleSystem::ParticleSystem(vector< glm::dvec3 > x, glm::dvec3 vel) {
     // Set initial position
     x0 = x;
     x1 = x;
@@ -12,14 +12,19 @@ ParticleSystem::ParticleSystem(vector< glm::dvec3 >* x, glm::dvec3 vel) {
     // Set initial velocity vector
     v = new vector< glm::dvec3 >();
     F = new vector< glm::dvec3 >();
+    //x0 = new vector< glm::dvec3 >();
+    //x1 = new vector< glm::dvec3 >();
 
-    for (int i = 0; i < x0->size(); ++i) {
+    for (int i = 0; i < x.size(); ++i) {
+    	//x0.push_back(x->at(i));
+    	//x1.push_back(x->at(i));
         v->push_back(vel);
         F->push_back(glm::dvec3(0.0,0.0,0.0));
     }
     
     // Calculate initial center of mass
     initCom = calcCom(x0);
+    cout << "initmCom: " << to_string(initCom) << endl;
 }
 
 
@@ -46,11 +51,6 @@ void ParticleSystem::applyForces() {
 	updatePos();
 }
 
-std::vector< glm::dvec3 >* ParticleSystem::getPos() {
-	// Är det verkligen x0 som ska returnas?
-	return x0;
-}
-
 std::vector< glm::dvec3 >* ParticleSystem::getVel() {
 	return v;
 }
@@ -69,54 +69,73 @@ void ParticleSystem::deform() {
 	arma::mat gTmp; 
 
 	glm::dvec3 newCom; // New center of mass
-	vector< glm::dvec3 > *g = x1; // Goal positions	
+	vector< glm::dvec3 > g = x1; // Goal positions	
 	glm::dmat3 Rot;	  // Rotation matrix in glm format
 	
     /* Calculate rotational matrix for all modes */
 
     // Calculate center of mass for the deformed positions
     newCom = calcCom(x1);
+    cout << "newCom: " << to_string(newCom) << endl;
 
     // Allocate
-    p = arma::mat(3, x1->size());
-    q = arma::mat(3, x1->size());
+    p = arma::mat(3, x1.size());
+    q = arma::mat(3, x1.size());
 
     // Init orgPos and defPos matrices
-    for ( int i = 0; i < x1->size(); ++i ) {
-        p(0,i) = x1->at(i).x - newCom.x;
-        p(1,i) = x1->at(i).y - newCom.y;
-        p(2,i) = x1->at(i).z - newCom.z; 
+    for ( int i = 0; i < x1.size(); ++i ) {
+        p(0,i) = x1.at(i).x - newCom.x;
+        p(1,i) = x1.at(i).y - newCom.y;
+        p(2,i) = x1.at(i).z - newCom.z; 
 
-        q(0,i) = x0->at(i).x - initCom.x;
-        q(1,i) = x0->at(i).y - initCom.y;
-        q(2,i) = x0->at(i).z - initCom.z;
+        q(0,i) = x0.at(i).x - initCom.x;
+        q(1,i) = x0.at(i).y - initCom.y;
+        q(2,i) = x0.at(i).z - initCom.z;
     }
 
     // Find covariance matrix Apq
-    // should be multiplied with x1->size()*massPerParticle
-    Apq = p * q.t();
+    Apq = mass * p * q.t();
+
+    cout << "p: " << p(0,0) << p(0,1) << endl
+    << p(1,0) << p(1,1) << endl
+    << p(2,0) << p(2,1) << endl;
+
+    cout << "q: " << q(0,0) << q(0,1) << endl
+    << q(1,0) << q(1,1) << endl
+    << q(2,0) << q(2,1) << endl;
+
+    /*for ( int i = 0; i < x1.size(); ++i ) {
+	    cout << "p: " << to_string(p.at(i)) << endl
+	    	 << "q: " << to_string(q.at(i)) << endl;	
+    }*/
+    cout << endl;
 
     // Find rotational part in Apq through Singular Value Decomposition
     arma::svd(U,S,V,Apq);
     R = V * U.t();
+
+    // Check if R has a reflection
+    if (det(R) < 0) {
+		R(0,2) = -R(0,2);
+		R(1,2) = -R(1,2);
+		R(2,2) = -R(2,2);
+	}
     
 	switch (mode) {
 		case 0: // Rigid transformation
-
-			// Check if R has a reflection?
 
             // Convert to glm
 			Rot = to_glm(R);
 
 			// Compute goal positions 
-			for ( int i = 0; i < x1->size(); ++i )
-				g->at(i) = Rot * (x0->at(i) - initCom) + newCom;
+			for ( int i = 0; i < x1.size(); ++i )
+				g.at(i) = Rot * (x0.at(i) - initCom) + newCom;
 	
 			break;
 		case 1: // Linear deformation
 
 			// Compute Aqq
-			Aqq = (q * q.t()).i(); 
+			Aqq = mass * (q * q.t()).i(); 
 
 			A = Apq * Aqq;
 
@@ -135,8 +154,8 @@ void ParticleSystem::deform() {
 			Rot = to_glm(R);
 
 			// Compute goal positions 
-			for ( int i = 0; i < x1->size(); ++i )
-				g->at(i) = Rot * (x0->at(i) - initCom) + newCom;
+			for ( int i = 0; i < x1.size(); ++i )
+				g.at(i) = Rot * (x0.at(i) - initCom) + newCom;
 
 			break;
 		case 2: // Quadratic deformation
@@ -147,13 +166,13 @@ void ParticleSystem::deform() {
 					<< R(1,0) << R(1,1) << R(1,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr
 					<< R(2,0) << R(2,1) << R(2,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr;
 
-			q = arma::mat(9, x1->size());
+			q = arma::mat(9, x1.size());
 
 			// Init orgPos and defPos matrices
-			for ( int i = 0; i < x1->size(); ++i ) {
-				q(0,i) = x0->at(i).x - initCom.x;	// qx
-				q(1,i) = x0->at(i).y - initCom.y;	// qy
-				q(2,i) = x0->at(i).z - initCom.z;	// qz
+			for ( int i = 0; i < x1.size(); ++i ) {
+				q(0,i) = x0.at(i).x - initCom.x;	// qx
+				q(1,i) = x0.at(i).y - initCom.y;	// qy
+				q(2,i) = x0.at(i).z - initCom.z;	// qz
 				q(3,i) = q(0,i)*q(0,i);				// qx^2
 				q(4,i) = q(1,i)*q(1,i);				// qy^2
 				q(5,i) = q(2,i)*q(2,i);				// qz^2
@@ -161,8 +180,8 @@ void ParticleSystem::deform() {
 				q(7,i) = q(1,i)*q(2,i);				// qy*qz
 				q(8,i) = q(2,i)*q(0,i);				// qz*qx
 			}
-			Apq = p * q.t();
-			Aqq = (q * q.t()).i(); 
+			Apq = mass * p * q.t();
+			Aqq = mass * (q * q.t()).i(); 
 
 			A = Apq * Aqq;
 
@@ -179,10 +198,10 @@ void ParticleSystem::deform() {
 			gTmp = RTilde * q;
 
 			// Compute goal positions
-			for ( int i = 0; i < x1->size(); ++i ) {
-				g->at(i).x = gTmp(0,i);
-				g->at(i).y = gTmp(1,i);
-				g->at(i).z = gTmp(2,i);
+			for ( int i = 0; i < x1.size(); ++i ) {
+				g.at(i).x = gTmp(0,i);
+				g.at(i).y = gTmp(1,i);
+				g.at(i).z = gTmp(2,i);
 			}
 
 			break; 
@@ -191,9 +210,9 @@ void ParticleSystem::deform() {
 	}
 
 	// Update positions with the modified Euler integration schema
-	for (int i = 0; i < x1->size(); ++i) {
-		v->at(i) += /* multiply by alpha */ (g->at(i) - x1->at(i)) / dt;
-		x1->at(i) += /* multiply by alpha */ (g->at(i) - x1->at(i));
+	for (int i = 0; i < x1.size(); ++i) {
+		v->at(i) += flubbiness * stiffness * (g.at(i) - x1.at(i)) / dt;
+		x1.at(i) += stiffness* (g.at(i) - x1.at(i));
 	}	
 }
 
@@ -202,26 +221,27 @@ void ParticleSystem::updateForce()
     // Should set forces according to input and collisions etc
     for (int i = 0; i < F->size(); ++i) {
         // Gravity
-        F->at(i) = gravity * mass;
+        F->at(i) = gravity * mass / x1.size();
 
         // Add collision impulse and friction
-        if (x1->at(i).y <= 0 && v->at(i).y < 0) {
+        if (x1.at(i).y <= 0) {
             glm::dvec3 normal = glm::dvec3(0.0, 1.0, 0.0);
             glm::dvec3 deltaV = v->at(i) - glm::dvec3(0,0,0); // Floor is static
 
             glm::dvec3 composant = normal * glm::dot(normal, deltaV); // deltaV composant in normal direction
 
-            glm::dvec3 collisionImpulse = -(elasticity + 1) * normal * glm::dot(normal, deltaV) * mass;
-            glm::dvec3 frictionImpulse = -friction * (deltaV - composant) * mass;
+            glm::dvec3 collisionImpulse = -(elasticity + 1) * normal * glm::dot(normal, deltaV) * (mass / x1.size());
+            glm::dvec3 frictionImpulse = -friction * (deltaV - composant) * (mass / x1.size());
 
             F->at(i) += (collisionImpulse + frictionImpulse) / dt;
-            x1->at(i).y = 0.01; // Set position to above object
+            x1.at(i).y = 0.01; // Set position to above object
         }
+        cout << "F: " << to_string(F->at(i)) << endl;
     }
 }
 
 glm::dvec3 ParticleSystem::getPosition(int i) {
-	return x1->at(i);
+	return x1.at(i);
 }
 
 void ParticleSystem::updateVel() {
@@ -236,16 +256,19 @@ void ParticleSystem::updateVel() {
 
 void ParticleSystem::updatePos() {
     // Euler integration
-    for (int i = 0; i < x1->size(); ++i) 
-        x1->at(i) += v->at(i) * dt;
+    for (int i = 0; i < x1.size(); ++i) {
+        x1.at(i) += v->at(i) * dt;
+        cout << "x0: " << to_string(x0.at(i)) << endl;
+    	cout << "x1: " << to_string(x1.at(i)) << endl;
+    }
 }
 
-glm::dvec3 ParticleSystem::calcCom(vector< glm::dvec3 >* x) {
+glm::dvec3 ParticleSystem::calcCom(vector< glm::dvec3 > x) {
     glm::dvec3 com = glm::dvec3(0, 0, 0);
-    for(vector< glm::dvec3 >::iterator it = x->begin(); it != x->end(); ++it) {
+    for(vector< glm::dvec3 >::iterator it = x.begin(); it != x.end(); ++it) {
         com += *it;
     }
-    return com / (double) x->size();
+    return com / (double) x.size();
 }
 
 // Convert Armadillo matrix to glm matrix
