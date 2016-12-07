@@ -197,17 +197,17 @@ void ParticleSystem::updateForce()
     // Should set forces according to input and collisions etc
     for (int i = 0; i < F->size(); ++i) {
         // Gravity
-        F->at(i) = gravity * mass;
+        F->at(i) = gravity * (mass / x1->size());
 
         // Add collision impulse and friction
-        if (x1->at(i).y <= 0 && v->at(i).y < 0) {
+        if (x1->at(i).y <= 0) {
             glm::dvec3 normal = glm::dvec3(0.0, 1.0, 0.0);
             glm::dvec3 deltaV = v->at(i) - glm::dvec3(0,0,0); // Floor is static
 
             glm::dvec3 composant = normal * glm::dot(normal, deltaV); // deltaV composant in normal direction
 
-            glm::dvec3 collisionImpulse = -(elasticity + 1) * normal * glm::dot(normal, deltaV) * mass;
-            glm::dvec3 frictionImpulse = -friction * (deltaV - composant) * mass;
+            glm::dvec3 collisionImpulse = -(elasticity + 1) * normal * glm::dot(normal, deltaV) * (mass / x1->size());
+            glm::dvec3 frictionImpulse = -friction * (deltaV - composant) * (mass / x1->size());
 
             F->at(i) += (collisionImpulse + frictionImpulse) / dt;
             x1->at(i).y = 0.01; // Set position to above object
