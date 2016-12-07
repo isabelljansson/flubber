@@ -86,7 +86,7 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
         for (; !it_geo.isDone(); it_geo.next()) {
           int idx = it_geo.index();
 
-          glm::dvec3 p = mesh->getPosition(0);
+          glm::dvec3 p = mesh->getPosition(idx);
           //glm::dvec3 p = glm::dvec3(0.0, 1.0, 0.0);
 
           // Transform back to model coordinates
@@ -116,7 +116,7 @@ MStatus PushDeformerNode::initialize() {
 
     
     GravityMagnitude = nAttr.create("GravityMagnitude", "gm", MFnNumericData::kDouble, 0.0);
-    nAttr.setDefault(0.0);
+    nAttr.setDefault(9.8);
     nAttr.setMin(0.0);
     nAttr.setMax(10.0);
     nAttr.setChannelBox(true);
@@ -127,7 +127,7 @@ MStatus PushDeformerNode::initialize() {
     nAttr.setMax(1.0);
     nAttr.setChannelBox(true);
 
-    CurrentTime = nAttr.create("CurrentTime", "ct", MFnNumericData::kDouble, 0.0);
+    CurrentTime = uAttr.create("CurrentTime", "ct", MFnUnitAttribute::kTime, 0.0);
     uAttr.setDefault(MAnimControl::currentTime().as(MTime::kFilm));
     uAttr.setChannelBox(true);
 
@@ -181,11 +181,16 @@ MStatus PushDeformerNode::initialize() {
     addAttribute(InitialVelocity);
     
     attributeAffects(CurrentTime, outputGeom);  // does this do anything?
-    /*attributeAffects(GravityMagnitude, outputGeom);
+    attributeAffects(GravityMagnitude, outputGeom);
     attributeAffects(GravityDirection, outputGeom);
     attributeAffects(Mass, outputGeom);
     attributeAffects(Flubbiness, outputGeom);
-    */
+    attributeAffects(Friction, outputGeom);
+    attributeAffects(Beta, outputGeom);
+    attributeAffects(Elasticity, outputGeom);
+    attributeAffects(Mode, outputGeom);
+    attributeAffects(InitialVelocity, outputGeom);
+    
     // Make the deformer weights paintable (maybe wait with this)
     // MGlobal::executeCommand("makePaintable -attrType multiFloat -sm deformer PushDeformerNode weights;");
 

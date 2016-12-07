@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
     object.friction = 0.1;
     object.beta = 0.5;
     object.elasticity = 0.5;
-    object.dt = 0.1;
+    object.dt = 0.033;
     object.mode = 0;
 
     for (int i = 0; i < 12; i++) {
