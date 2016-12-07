@@ -21,8 +21,8 @@ deformer -type flubber;
 
 // Connect the dynamics attributes to the deformer node
 // Gravity Direction
-connectAttr -f gravityField1.direction flubber1.GravityDirection;
+//connectAttr -f gravityField1.direction flubber1.GravityDirection;
 // Gravity Magnitude
-connectAttr -f gravityField1.magnitude flubber1.GravityMagnitude;
+//connectAttr -f gravityField1.magnitude flubber1.GravityMagnitude;
 // Time
-connectAttr -f time1.outTime flubber1.CurrentTime;
+//connectAttr -f time1.outTime flubber1.CurrentTime;
