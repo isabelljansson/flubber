@@ -4,6 +4,7 @@ ParticleSystem::ParticleSystem(vector< glm::dvec3 > x, glm::dvec3 vel) {
     // Set initial position
     x0 = x;
     x1 = x;
+    g = x;
 
     // Set intitial mode to a rigid transformation
     mode = 0;
@@ -59,6 +60,7 @@ void ParticleSystem::deform() {
 	arma::mat q; 	// Original positions
 	arma::mat p; 	// Deformed positions
 	arma::mat Apq;	// Covariance matrix containing information about rotation
+	arma::mat ApqTilde;
 	arma::mat Aqq; // Information about scaling
 	arma::mat A;	// Linear/quadratic transformation
 	arma::mat R;	// Rotation matrix in armadillo format
@@ -70,7 +72,7 @@ void ParticleSystem::deform() {
 	arma::mat M;
 
 	glm::dvec3 newCom; // New center of mass
-	vector< glm::dvec3 > g = x1; // Goal positions	
+	//vector< glm::dvec3 > g = x1; // Goal positions	
 	glm::dmat3 Rot;	  // Rotation matrix in glm format
 
     // Calculate center of mass for the deformed positions
@@ -149,8 +151,12 @@ void ParticleSystem::deform() {
 
 			q = arma::mat(9, x1.size());
 
-			// Init orgPos and defPos matrices
+			// ~p and ~q
 			for ( int i = 0; i < x1.size(); ++i ) {
+				p(0,i) = g.at(i).x - newCom.x;
+				p(1,i) = g.at(i).y - newCom.y;
+				p(2,i) = g.at(i).z - newCom.z;
+
 				q(0,i) = x0.at(i).x - initCom.x;	// qx
 				q(1,i) = x0.at(i).y - initCom.y;	// qy
 				q(2,i) = x0.at(i).z - initCom.z;	// qz
@@ -164,6 +170,7 @@ void ParticleSystem::deform() {
 			Apq = mass * p * q.t();
 			Aqq = mass * (q * q.t()).i(); 
 
+			// Ã
 			A = Apq * Aqq;	
 
 			// Find rotational part in Apq through Singular Value Decomposition

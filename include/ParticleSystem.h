@@ -55,6 +55,7 @@ class ParticleSystem {
     private:
     	vector< glm::dvec3 > x0; // Initial position
     	vector< glm::dvec3 > x1; // Updated postion
+    	vector< glm::dvec3 > g; // goal postion
 
     	vector< glm::dvec3 > *v; // Velocity
         vector< glm::dvec3 > *F; // External forces
