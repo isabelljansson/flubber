@@ -10,7 +10,7 @@ move -r 0 0.0 0;
 
 polySphere -n mySphere -r 1 -sx 20 -sy 20 -ax 0 1 0 -cuv 2 -ch 1;
 
-move -r 0 5.0 0;
+move -r 0 2.0 0;
 
 select -r mySphere;
 CreatePassiveRigidBody;

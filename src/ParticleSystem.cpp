@@ -140,12 +140,10 @@ void ParticleSystem::deform() {
 			A = Apq * Aqq;
 
 			// Scale A to ensure that det(A)=1
-			//A /= pow(arma::det(A), 1/3);
+			A /= pow(arma::det(A), 1/3);
 
 			// Check if R has a reflection?
 			// Find rotational part in Apq through Singular Value Decomposition
-			arma::svd(U,S,V,A);
-			R = V * U.t();
 			
 			R = beta * A + (1.0 - beta) * R;
 
@@ -191,7 +189,7 @@ void ParticleSystem::deform() {
 
 			// Find rotational part in Apq through Singular Value Decomposition
 			
-			RTilde = beta * A + (1.0 - beta) * RTilde;
+            RTilde = beta * A + (1.0 - beta) * RTilde;
 
 			// Check if R has a reflection?
 
@@ -234,6 +232,7 @@ void ParticleSystem::updateForce()
             glm::dvec3 frictionImpulse = -friction * (deltaV - composant) * (mass / x1.size());
 
             F->at(i) += (collisionImpulse + frictionImpulse) / dt;
+            x1.at(i).y = 0.01; // Set position to above object
             
         }
         cout << "F: " << to_string(F->at(i)) << endl;
