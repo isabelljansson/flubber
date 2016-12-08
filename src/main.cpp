@@ -7,8 +7,9 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
     vector< glm::dvec3 > pos;
-    pos.push_back(glm::dvec3(0.0, 0.0, 0.0));
-    pos.push_back(glm::dvec3(1.0, 1.0, 0.0));
+    pos.push_back(glm::dvec3(0.1, 0.03, 0.3));
+    pos.push_back(glm::dvec3(2.1, 0.9, 1.0));
+    pos.push_back(glm::dvec3(2.1, 0.9, 1.0));
     glm::dvec3 vel = glm::dvec3(1, 0, 1);
     ParticleSystem object = ParticleSystem(pos, vel);
     object.gravity = glm::dvec3(0.0, -9.82, 0.0);
@@ -19,7 +20,7 @@ int main(int argc, char* argv[]) {
     object.beta = 0.5;
     object.elasticity = 0.5;
     object.dt = 0.033;
-    object.mode = 1;
+    object.mode = 2;
 
     for (int i = 0; i < 12; i++) {
         object.applyForces();

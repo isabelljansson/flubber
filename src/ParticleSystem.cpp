@@ -66,6 +66,8 @@ void ParticleSystem::deform() {
 	arma::mat U, V; // matrices for svd
 	arma::vec S; // vector for svd
 	arma::mat gTmp; 
+	arma::mat Q;
+	arma::mat M;
 
 	glm::dvec3 newCom; // New center of mass
 	vector< glm::dvec3 > g = x1; // Goal positions	
@@ -162,17 +164,39 @@ void ParticleSystem::deform() {
 			Apq = mass * p * q.t();
 			Aqq = mass * (q * q.t()).i(); 
 
-			A = Apq * Aqq;
-
-			// Scale A to ensure that det(A)=1
-			// should we scale in the quadratic case as well?
-			A /= pow(arma::det(A), 1/3);
+			A = Apq * Aqq;	
 
 			// Find rotational part in Apq through Singular Value Decomposition
 			
             RTilde = beta * A + (1.0 - beta) * RTilde;
 
-			// Check if R has a reflection?
+            // Split the result in to three new matrices that can be applied individually
+			A = arma::mat(3,3);
+			Q = arma::mat(3,3);
+			M = arma::mat(3,3);
+
+			A << RTilde(0,0) << RTilde(0,1) << RTilde(0,2) << arma::endr <<
+				 RTilde(1,0) << RTilde(1,1) << RTilde(1,2) << arma::endr <<
+				 RTilde(2,0) << RTilde(2,1) << RTilde(2,2) << arma::endr;
+
+			Q << RTilde(0,0 + 3) << RTilde(0,1 + 3) << RTilde(0,2 + 3) << arma::endr <<
+				 RTilde(1,0 + 3) << RTilde(1,1 + 3) << RTilde(1,2 + 3) << arma::endr <<
+				 RTilde(2,0 + 3) << RTilde(2,1 + 3) << RTilde(2,2 + 3) << arma::endr;
+
+			M << RTilde(0,0 + 6) << RTilde(0,1 + 6) << RTilde(0,2 + 6) << arma::endr <<
+				 RTilde(1,0 + 6) << RTilde(1,1 + 6) << RTilde(1,2 + 6) << arma::endr <<
+				 RTilde(2,0 + 6) << RTilde(2,1 + 6) << RTilde(2,2 + 6) << arma::endr;
+            
+            // Scale A to ensure that det(A)=1
+			// should we scale in the quadratic case as well?
+			A /= pow(arma::det(A), 1/3);
+
+			//Transpose Q
+			Q = Q.t();
+
+			RTilde << A(0,0) << A(0,1) << A(0,2) << Q(0,0) << Q(0,1) << Q(0,2) << M(0,0) << M(0,1) << M(0,2) <<  arma::endr <<
+				   	  A(1,0) << A(1,1) << A(1,2) << Q(1,0) << Q(1,1) << Q(1,2) << M(1,0) << M(1,1) << M(1,2) <<  arma::endr <<
+				   	  A(2,0) << A(2,1) << A(2,2) << Q(2,0) << Q(2,1) << Q(2,2) << M(2,0) << M(2,1) << M(2,2) <<  arma::endr;
 
 			gTmp = RTilde * q;
 
