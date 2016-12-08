@@ -205,6 +205,8 @@ void ParticleSystem::deform() {
 				g.at(i).x = gTmp(0,i);
 				g.at(i).y = gTmp(1,i);
 				g.at(i).z = gTmp(2,i);
+
+				g.at(i) += newCom;
 			}
 
 			break; 
@@ -216,6 +218,8 @@ void ParticleSystem::deform() {
 	for (int i = 0; i < x1.size(); ++i) {
 		v->at(i) += flubbiness * stiffness * (g.at(i) - x1.at(i)) / dt;
 		x1.at(i) += stiffness* (g.at(i) - x1.at(i));
+		if (x1.at(i).y <= 0) 
+            x1.at(i).y = 0.01; // Set position to above object
 	}	
 }
 
@@ -253,18 +257,16 @@ void ParticleSystem::updateVel() {
         v->at(i) += F->at(i) / mass * dt;
         F->at(i) = glm::dvec3(0,0,0); // Reset all forces?
     }
-
-    // Modified euler integration?
 }
 
 void ParticleSystem::updatePos() {
     // Euler integration
     for (int i = 0; i < x1.size(); ++i) {
         x1.at(i) += v->at(i) * dt;
-        cout << "x0: " << to_string(x0.at(i)) << endl;
-    	cout << "x1: " << to_string(x1.at(i)) << endl;
         if (x1.at(i).y <= 0) 
             x1.at(i).y = 0.01; // Set position to above object
+        cout << "x0: " << to_string(x0.at(i)) << endl;
+    	cout << "x1: " << to_string(x1.at(i)) << endl;
     }
 }
 
@@ -283,8 +285,4 @@ glm::dmat3 ParticleSystem::to_glm(arma::mat M) {
 		for (int j = 0; j < 3; ++j)
 			M_glm[i][j] = M(i,j);
 	return M_glm;
-}
-
-glm::dvec3 to_glm(arma::vec v) {
-	return glm::vec3(v(0), v(1), v(2));
 }
