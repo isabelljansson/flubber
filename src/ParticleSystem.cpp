@@ -24,7 +24,6 @@ ParticleSystem::ParticleSystem(vector< glm::dvec3 > x, glm::dvec3 vel) {
     
     // Calculate initial center of mass
     initCom = calcCom(x0);
-    cout << "initmCom: " << to_string(initCom) << endl;
 }
 
 
@@ -71,12 +70,9 @@ void ParticleSystem::deform() {
 	glm::dvec3 newCom; // New center of mass
 	vector< glm::dvec3 > g = x1; // Goal positions	
 	glm::dmat3 Rot;	  // Rotation matrix in glm format
-	
-    /* Calculate rotational matrix for all modes */
 
     // Calculate center of mass for the deformed positions
     newCom = calcCom(x1);
-    cout << "newCom: " << to_string(newCom) << endl;
 
     // Allocate
     p = arma::mat(3, x1.size());
@@ -95,20 +91,6 @@ void ParticleSystem::deform() {
 
     // Find covariance matrix Apq
     Apq = mass * p * q.t();
-
-    cout << "p: " << p(0,0) << p(0,1) << endl
-    << p(1,0) << p(1,1) << endl
-    << p(2,0) << p(2,1) << endl;
-
-    cout << "q: " << q(0,0) << q(0,1) << endl
-    << q(1,0) << q(1,1) << endl
-    << q(2,0) << q(2,1) << endl;
-
-    /*for ( int i = 0; i < x1.size(); ++i ) {
-	    cout << "p: " << to_string(p.at(i)) << endl
-	    	 << "q: " << to_string(q.at(i)) << endl;	
-    }*/
-    cout << endl;
 
     // Find rotational part in Apq through Singular Value Decomposition
     arma::svd(U,S,V,Apq);
@@ -135,7 +117,7 @@ void ParticleSystem::deform() {
 		case 1: // Linear deformation
 
 			// Compute Aqq
-			Aqq = mass * (q * q.t()).i(); 
+			Aqq = (mass * q * q.t()).i(); 
 
 			A = Apq * Aqq;
 
@@ -144,7 +126,6 @@ void ParticleSystem::deform() {
 
 			// Check if R has a reflection?
 			// Find rotational part in Apq through Singular Value Decomposition
-			
 			R = beta * A + (1.0 - beta) * R;
 
 			// Check if R has a reflection?
@@ -185,7 +166,7 @@ void ParticleSystem::deform() {
 
 			// Scale A to ensure that det(A)=1
 			// should we scale in the quadratic case as well?
-			//A /= pow(arma::det(A), 1/3);
+			A /= pow(arma::det(A), 1/3);
 
 			// Find rotational part in Apq through Singular Value Decomposition
 			
@@ -233,9 +214,8 @@ void ParticleSystem::updateForce()
 
             F->at(i) += (collisionImpulse + frictionImpulse) / dt;
             x1.at(i).y = 0.01; // Set position to above object
-            
+
         }
-        cout << "F: " << to_string(F->at(i)) << endl;
     }
 }
 
