@@ -9,6 +9,7 @@
 \documentclass[12pt, twocolumn]{article}
 \usepackage{graphicx} % Figures
 \usepackage{amsmath}
+\usepackage{subcaption}
 
 \newenvironment{myitemize}
 { \begin{itemize}
@@ -134,7 +135,7 @@
 
 The plugin is built upon the deformer node, $MPxDeformerNode$, in Mayas C++ API which can control the position of all vertices of an object with the deformer loaded. By copying the vertice positions as individual particles in a custom particle system in the plugin more control gained. A bigger freedom is also gained which allows the use of high quality linear algebra libraries for efficient and complex calculations. 
 
-The deformation of a shape can be controlled by changing the following parameters:
+As seen in \ref{fig:gui}, the deformation of a shape can be controlled by changing the following parameters:
 
 \begin{myitemize} 
   \item Gravity Magnitude and Direction 
@@ -158,6 +159,33 @@ The local time variable is connected to the global time so that the deformation 
 
 \section{Conclusion}
 
+The deformer node plugin can handle rigid as well as soft body (linear and quadratic) deformations with a low computation. \ref{fig:maya} illustrates the deformation that happens when a sphere collides with the ground plane. After impact, in \ref{fig:sfig2}, will the mesh reform into a egg-like shape to later settle down as the original sphere.
+
+\begin{figure}
+\begin{subfigure}{.3\textwidth}
+  \centering
+  \includegraphics[width=0.9\linewidth]{img/def1.png}
+  \caption{}
+  \label{fig:sfig1}
+\end{subfigure}%
+\begin{subfigure}{.3\textwidth}
+  \centering
+  \includegraphics[width=0.9\linewidth]{img/def2.png}
+  \caption{}
+  \label{fig:sfig2}
+\end{subfigure}
+\caption{A quadratic deformation of a sphere using the plugin.}
+\label{fig:maya}
+\end{figure}
+
+%Picture of IBL rendered deformation, comment on that in results.
+
+
+\section{Discussion and Future Work}
+
+The shape matching method can be useful in rigid and moderately soft body deformations even though the algorithm is not physically grounded. It can model twists and bends well but struggles with stability with large deformations. If the parameters $bounciness$ or $deformation$ is set too high the deformed positions cannot adequately be translated to their goal position, which causes the shape to be flattened upon impact with the ground plane. Proper parameter management is therefore required.
+
+Another possible extension to the plugin could be to implement support of object to object collision. Current solution only handles collision with the ground plane by naively checking if the a particles y-value is below the y-value of the plane to then respectively updates the forces.
 
 \bibliographystyle{ieeetr}
 \pagebreak
