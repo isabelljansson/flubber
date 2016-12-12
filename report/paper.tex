@@ -10,6 +10,14 @@
 \usepackage{graphicx} % Figures
 \usepackage{amsmath}
 
+\newenvironment{myitemize}
+{ \begin{itemize}
+    \setlength{\itemsep}{0pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}     }
+{ \end{itemize}                  } 
+
+
 \begin{document}
 \twocolumn[
 \begin{@twocolumnfalse}
@@ -122,7 +130,34 @@
     \end{equation}
     
 
+\section{Maya Implementation}
+
+The plugin is built upon the deformer node, $MPxDeformerNode$, in Mayas C++ API which can control the position of all vertices of an object with the deformer loaded. By copying the vertice positions as individual particles in a custom particle system in the plugin more control gained. A bigger freedom is also gained which allows the use of high quality linear algebra libraries for efficient and complex calculations. 
+
+The deformation of a shape can be controlled by changing the following parameters:
+
+\begin{myitemize} 
+  \item Gravity Magnitude and Direction 
+  \item Mass, $m$
+  \item Stiffness, $\alpha_s$ - $[0,1]$ variable controlling how much deformation is allowed
+  \item Bounciness, $\alpha_f$ - $[0,1]$ variable controlling the strength of the overshoot
+  \item Friction, $f$
+  \item Deformation, $\beta$ - $[0,1]$ variable controlling the strength of the deformation
+  \item Elasticity, $\epsilon$
+  \item Mode (Rigid, Linear or Quadratic) - Controls the kind of desired deformation 
+  \item Initial Velocity 
+\end{myitemize}
+
+The local time variable is connected to the global time so that the deformation will update when the timeline changes. The plugin stores the value of the last time step so the simulation behaves correctly regardless of how the global time is changed. Further variables can be linked with other parameters in maya such as the gravity magnitude and direction can take their values from a gravity field.
+
+ \begin{figure}[t]
+    \includegraphics[width=\linewidth]{img/gui.png}
+    \caption{The user interface in Maya which is used to modify the deformation.}
+    \label{fig:gui}
+    \end{figure}
+
 \section{Conclusion}
+
 
 \bibliographystyle{ieeetr}
 \pagebreak
