@@ -135,23 +135,23 @@ This report follows the approach proposed by M\"uller et al.\cite{shapematching}
 
 \section{Maya Implementation}
 
-The plugin is built on top of the deformer node, $MPxDeformerNode$, in Mayas C++ API which can control the position of all vertices of an object with the deformer loaded. By copying the vertice positions and storing them as individual particles in a custom particle system in the plugin more control gained. A bigger freedom is also gained which allows the use of high quality linear algebra libraries for efficient and complex calculations. 
+The plugin is built on top of the deformer node, $MPxDeformerNode$, in Mayas C++ API which can control the position of all vertices of an object with the deformer loaded. By copying the vertice positions and storing them as individual particles in a custom particle system in the plugin is more control and freedom gained. This allows the use of high quality linear algebra libraries for efficient and complex calculations. 
 
-As seen in \ref{fig:gui}, the deformation of a shape can be controlled by changing the following parameters:
+As seen in figure \ref{fig:gui}, the deformation of a shape can be controlled by changing the following parameters:
 
 \begin{myitemize} 
   \item Gravity Magnitude and Direction 
   \item Mass, $m$
-  \item Stiffness, $\alpha_s$ - $[0,1]$ variable controlling how much deformation is allowed
-  \item Bounciness, $\alpha_f$ - $[0,1]$ variable controlling the strength of the overshoot
+  \item Stiffness, $\alpha_s \in [0,1]$ - variable controlling how much deformation is allowed
+  \item Bounciness, $\alpha_f \in [0,1]$ - variable controlling the strength of the overshoot
   \item Friction, $f$
-  \item Deformation, $\beta$ - $[0,1]$ variable controlling the strength of the deformation
+  \item Deformation, $\beta \in [0,1]$ - variable controlling the strength of the deformation
   \item Elasticity, $\epsilon$
-  \item Mode (Rigid, Linear or Quadratic) - Controls the kind of desired deformation 
+  \item Mode (Rigid, Linear or Quadratic) - Controls the type of desired deformation 
   \item Initial Velocity 
 \end{myitemize}
 
-The local time variable is connected to the global time so that the deformation will update when the timeline changes. The plugin stores the value of the last time step so the simulation behaves correctly regardless of how the global time is changed. Further variables can be linked with other parameters in maya such as the gravity magnitude and direction can take their values from a gravity field.
+The local time variable is connected to the global time so that the deformation will update when the timeline changes. The plugin stores the value of the last time step so the simulation behaves correctly regardless of how the global time is changed. Further variables can be linked with other parameters in Maya such as the gravity magnitude and direction can take their values from a gravity field.
 
  \begin{figure}[t]
     \includegraphics[width=\linewidth]{img/gui.png}
@@ -161,7 +161,7 @@ The local time variable is connected to the global time so that the deformation 
 
 \section{Conclusion}
 
-The deformer node plugin can handle rigid as well as soft body (linear and quadratic) deformations with a low computation cost. Figure \ref{fig:maya} illustrates the deformation that happens when a sphere collides with the ground plane. After impact, in \ref{fig:sfig2}, will the mesh reform into a egg-like shape to later settle down as the original sphere.
+The deformer node plugin can handle rigid as well as soft body (linear and quadratic) deformations with a low computation cost. Figure \ref{fig:maya} illustrates the deformation that happens when a sphere collides with the ground plane. After impact, in figure \ref{fig:sfig2}, the mesh will transform into a egg-like shape to later settle down as the original sphere.
 
 \begin{figure}
 \begin{subfigure}{.3\textwidth}
