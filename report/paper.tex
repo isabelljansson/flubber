@@ -78,7 +78,7 @@ This report follows the approach proposed by M\"uller et al.\cite{shapematching}
     The new velocities and positions are calculated through Euler integration where $\alpha$ is the bounciness and stiffness of the soft body and $h$ is the time step, see Equation~\ref{eq:vel} and~\ref{eq:pos}.
 
     \begin{equation} \label{eq:vel}
-        \mathbf{v}_i(t + h) = \mathbf{v}_i(t) + \alpha{\frac{\mathbf{g}_i(t) - \mathbf{x}_i(t)}{h}} + hf_{ext}(t)/m_i
+        \mathbf{v}_i(t + h) = \mathbf{v}_i(t) + \alpha{\frac{\mathbf{g}_i(t) - \mathbf{x}_i(t)}{h}} + h \frac{f_{ext}(t)}{m_i}
     \end{equation}
 
     \begin{equation} \label{eq:pos}
@@ -135,7 +135,7 @@ This report follows the approach proposed by M\"uller et al.\cite{shapematching}
 
 \section{Maya Implementation}
 
-The plugin is built upon the deformer node, $MPxDeformerNode$, in Mayas C++ API which can control the position of all vertices of an object with the deformer loaded. By copying the vertice positions as individual particles in a custom particle system in the plugin more control gained. A bigger freedom is also gained which allows the use of high quality linear algebra libraries for efficient and complex calculations. 
+The plugin is built on top of the deformer node, $MPxDeformerNode$, in Mayas C++ API which can control the position of all vertices of an object with the deformer loaded. By copying the vertice positions and storing them as individual particles in a custom particle system in the plugin more control gained. A bigger freedom is also gained which allows the use of high quality linear algebra libraries for efficient and complex calculations. 
 
 As seen in \ref{fig:gui}, the deformation of a shape can be controlled by changing the following parameters:
 
