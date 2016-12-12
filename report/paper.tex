@@ -146,6 +146,9 @@ The deformer node plugin can handle rigid as well as soft body (linear and quadr
 
 \section{Discussion and Future Work}
 
+The shape matching method can be useful in rigid and moderately soft body deformations even though the algorithm is not physically grounded. It can model twists and bends well but struggles with stability with large deformations. If the parameters $bounciness$ or $deformation$ is set too high the deformed positions cannot adequately be translated to their goal position, which causes the shape to be flattened upon impact with the ground plane. Proper parameter management is therefore required.
+
+Another possible extension to the plugin could be to implement support of object to object collision. Current solution only handles collision with the ground plane by naively checking if the a particles y-value is below the y-value of the plane to then respectively updates the forces.
 
 \bibliographystyle{ieeetr}
 \pagebreak
