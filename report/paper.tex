@@ -26,6 +26,8 @@
 
 \begin{abstract}
 
+This report discusses the approach proposed by M\"uller et al.\cite{shapematching} to simulate soft body deformation using shape matching and how it can be implemented into Autodesk Maya as a deformer plugin. The shape matching method does not require storage of any data about neighbouring vertices and is unconditional stable. Due to its efficiency in terms of memory and computation complexity it is well suited for interactive applications.
+
 \end{abstract}
 
 \end{@twocolumnfalse}
@@ -159,7 +161,7 @@ The local time variable is connected to the global time so that the deformation 
 
 \section{Conclusion}
 
-The deformer node plugin can handle rigid as well as soft body (linear and quadratic) deformations with a low computation. \ref{fig:maya} illustrates the deformation that happens when a sphere collides with the ground plane. After impact, in \ref{fig:sfig2}, will the mesh reform into a egg-like shape to later settle down as the original sphere.
+The deformer node plugin can handle rigid as well as soft body (linear and quadratic) deformations with a low computation cost. Figure \ref{fig:maya} illustrates the deformation that happens when a sphere collides with the ground plane. After impact, in \ref{fig:sfig2}, will the mesh reform into a egg-like shape to later settle down as the original sphere.
 
 \begin{figure}
 \begin{subfigure}{.3\textwidth}
