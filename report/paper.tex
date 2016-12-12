@@ -46,7 +46,7 @@
 
     The shape matching approach proposed by M\"uller et al.~\cite{shapematching} is a meshless shape matching technique for deformation of soft bodies.
     It is a meshless technique since the object is only represented by a point cloud.
-    There is no need for connectivity information between the points since the shape matching keeps the form of the object.
+    There is no need for connectivity information between the points since the shape matching keeps the shape of the object.
     This is done by driving the deformed points towards the position of the points of the original shape, see figure~\ref{fig:def}.
     
     \begin{figure}
@@ -58,7 +58,7 @@
 \section{Shape matching implementation}
     The soft body is represented by a point cloud, where each particle has a mass $m_i$, an initial position $\mathbf{x}_i^0$ representing the shape of the object and a deformed position $\mathbf{x}_i$.
     The soft body is affected by external forces such as gravity, collision impulse and friction impulse caused by a collision with an object.
-    The external forces $f_{ext} = F_g + J_c + J_f$ is what causes the deformation of the object.
+    The external forces $f_{ext} = F_g + J_c + J_f$ is what causes the deformation of the soft body.
     The new velocities and positions for the particles are calculated using the external forces and Euler integration.
     The collision impulse $J_c$ is calculated through Equation~\ref{eq:col} where $\epsilon$ is the elasticity of the soft body, $n$ is the contact normal and $\Delta{v}$ is the velocity difference between the soft body and the static object it collides with.
     The friction impulse is calculated through Equation~\ref{eq:fric}, where $f$ is the friction.
@@ -73,7 +73,7 @@
 
     The shape matching is made by finding a goal position $g_i$ for every particle.
     The goal position is used to find the new velocities and positions for the particles for each time step, driving the soft body to take its original shape at $\mathbf{x}^0$.
-    The new velocities and positions is calculated through Euler integration where $\alpha$ is the bounciness and stiffness of the soft body and $h$ is the time step, see Equation~\ref{eq:vel} and~\ref{eq:pos}.
+    The new velocities and positions are calculated through Euler integration where $\alpha$ is the bounciness and stiffness of the soft body and $h$ is the time step, see Equation~\ref{eq:vel} and~\ref{eq:pos}.
 
     \begin{equation} \label{eq:vel}
         \mathbf{v}_i(t + h) = \mathbf{v}_i(t) + \alpha{\frac{\mathbf{g}_i(t) - \mathbf{x}_i(t)}{h}} + hf_{ext}(t)/m_i
@@ -112,7 +112,7 @@
     The goal position represents a rotated and translated version of the initial shape.
 
     \paragraph{Linear deformation}\mbox{}\\[5px]
-    For linear deformation, the linear transformation $\mathbf{A}$ in combination with the rotation matrix $\mathbf{R}$ according to Equation~\ref{eq:T} is used instead of the rotational matrix to calculate the goal position, see Equation~\ref{eq:goal}.
+    For linear deformation, the linear transformation $\mathbf{A}$ in combination with the rotation matrix $\mathbf{R}$ according to Equation~\ref{eq:T} is used instead of the rotation matrix to calculate the goal position, see Equation~\ref{eq:goal}.
     The linear deformation $\mathbf{A}$ is divided by $\sqrt[3]{det(\mathbf{A})}$ to keep the volume conserved.
 
     \begin{equation} \label{eq:T}
