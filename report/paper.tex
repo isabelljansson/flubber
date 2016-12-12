@@ -31,9 +31,22 @@
 ]
 
 \section{Introduction}
+    Soft body deformation is a computer graphics method for simulating the deformation of a soft body. 
+    There exists many techniques for achieving soft body deformation.
+    In this paper we present the method and results from implementing a soft body deformer plugin for the 3D computer graphics software Maya. The implementation is based on the meshless shape matching method proposed by M\"uller et al.~\cite{shapematching}.
 
 \section{Background}
-    The shape matching approach proposed by M\"uller et al.~\cite{shapematching} is a shape matching technique for deformations of soft bodies.
+    Soft deformable bodies is a field in computer graphics that focuses on the physical and visual simulation of the motion and characteristics of a soft deformable body.
+    Soft deformable bodies are objects whose bodies can change by being deformed without losing its characteristic shape.
+    Several different methods have been proposed to simulate the deformation of soft deformable bodies.
+    The spring mass model is one of the simpler methods where the soft body is approximated by a set of masses linked by springs.
+    The method is popular for simulating the deformation of cloth.
+    Two other methods are the finite element method and the energy minimization method.
+
+    The shape matching approach proposed by M\"uller et al.~\cite{shapematching} is a meshless shape matching technique for deformation of soft bodies.
+    It is a meshless technique since the object is only represented by a point cloud.
+    There is no need for connectivity information between the points since the shape matching keeps the form of the object.
+    This is done by driving the deformed points towards the position of the points of the original shape.
     
     \begin{figure}
     \includegraphics[width=\linewidth]{img/deformation2.png}
