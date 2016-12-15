@@ -1,4 +1,7 @@
 /build
+/images
+/mask
+/scene
 
 .DS_Store
 Thumbs.db
@@ -15,3 +18,9 @@ out
 *.bbl
 *.log
 *.pdf
+*.fdb_latexmk
+*.synctex.gz
+*.fls
+
+# Plugin
+sampleplugin.bundle
