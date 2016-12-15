@@ -202,9 +202,8 @@ void ParticleSystem::deform() {
             x1.at(i).y = 0.01; // Set position to above object
 	}	
 }
-/*
-void ParticleSystem::updateForce()
-{
+
+void ParticleSystem::updateForce() {
     // Should set forces according to input and collisions etc
     for (int i = 0; i < F->size(); ++i) {
         // Gravity
@@ -222,24 +221,6 @@ void ParticleSystem::updateForce()
 
             F->at(i) += (collisionImpulse + frictionImpulse) / dt;
             x1.at(i).y = 0.01; // Set position to above object
-        }
-    }
-}*/
-
-void ParticleSystem::updateForce() {
-    // Should set forces according to input and collisions etc
-    for (int i = 0; i < F->size(); ++i) {
-        // Gravity
-        F->at(i) = gravity * mass / (double) x1->size();
-
-        // Add collision impulse and friction
-        if (x1->at(i).y <= 0) {
-            // Calculate change in velocity between object and floor
-            glm::dvec3 deltaV = v->at(i) - glm::dvec3(0,0,0); // Floor is static
-            // Add impulse J from hooke's law
-            F->at(i) += -(elasticity + 1) * (mass / x1->size()) * deltaV / dt;
-            // Set position to above floor
-            x1->at(i).y = 0.01; 
         }
     }
 }
