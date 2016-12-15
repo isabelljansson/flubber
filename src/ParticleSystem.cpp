@@ -4,7 +4,6 @@ ParticleSystem::ParticleSystem(vector< glm::dvec3 > x, glm::dvec3 vel) {
     // Set initial position
     x0 = x;
     x1 = x;
-    g = x;
 
     // Set intitial mode to a rigid transformation
     mode = 0;
@@ -13,12 +12,8 @@ ParticleSystem::ParticleSystem(vector< glm::dvec3 > x, glm::dvec3 vel) {
     // Set initial velocity vector
     v = new vector< glm::dvec3 >();
     F = new vector< glm::dvec3 >();
-    //x0 = new vector< glm::dvec3 >();
-    //x1 = new vector< glm::dvec3 >();
 
     for (int i = 0; i < x.size(); ++i) {
-    	//x0.push_back(x->at(i));
-    	//x1.push_back(x->at(i));
         v->push_back(vel);
         F->push_back(glm::dvec3(0.0,0.0,0.0));
     }
@@ -56,24 +51,25 @@ std::vector< glm::dvec3 >* ParticleSystem::getVel() {
 }
 
 void ParticleSystem::deform() {
-
-	arma::mat q; 	// Original positions
-	arma::mat p; 	// Deformed positions
-	arma::mat Apq;	// Covariance matrix containing information about rotation
-	arma::mat ApqTilde;
-	arma::mat Aqq; // Information about scaling
-	arma::mat A;	// Linear/quadratic transformation
-	arma::mat R;	// Rotation matrix in armadillo format
+	arma::mat q; 	    // Original positions
+	arma::mat qTilde; 	// Original positions for quadratic transformation
+	arma::mat p; 	    // Deformed positions
+	arma::mat Apq;	    // Covariance matrix containing information about rotation
+	arma::mat ApqTilde; // Apq using qTilde
+	arma::mat Aqq;      // Information about scaling
+	arma::mat AqqTilde; // Aqq using qTilde
+	arma::mat A;	    // Linear/quadratic transformation
+    arma::mat Asquare;  // Squared A to calculate determinant
+	arma::mat R;	    // Rotation matrix in armadillo format
 	arma::mat RTilde;	// Bigger rotation matrix in armadillo format, for quadratic deformations
-	arma::mat U, V; // matrices for svd
-	arma::vec S; // vector for svd
-	arma::mat gTmp; 
-	arma::mat Q;
-	arma::mat M;
-    arma::mat Asquare;
+    arma::mat T;        // Combinaton of A and R
+    arma::mat TTilde;   // Combination of ATilde and RTilde
+	arma::mat U, V;     // matrices for svd
+	arma::vec S;        // vector for svd
+	arma::mat gTmp;     // Temporary goal solution
 
 	glm::dvec3 newCom; // New center of mass
-	//vector< glm::dvec3 > g = x1; // Goal positions	
+	vector< glm::dvec3 > g = x1; // Goal positions	
 	glm::dmat3 Rot;	  // Rotation matrix in glm format
 
     // Calculate center of mass for the deformed positions
@@ -129,13 +125,11 @@ void ParticleSystem::deform() {
 			// Scale A to ensure that det(A)=1
 			A /= pow(arma::det(A), 1/3);
 
-			// Check if R has a reflection?
-			// Find rotational part in Apq through Singular Value Decomposition
-			R = beta * A + (1.0 - beta) * R;
+			T = beta * A + (1.0 - beta) * R;
 
 			// Check if R has a reflection?
 
-			Rot = to_glm(R);
+			Rot = to_glm(T);
 
 			// Compute goal positions 
 			for ( int i = 0; i < x1.size(); ++i )
@@ -144,32 +138,32 @@ void ParticleSystem::deform() {
 			break;
 		case 2: // Quadratic deformation
 
+            // [R 0 0]
 			RTilde = arma::mat(3,9);
-
 			RTilde 	<< R(0,0) << R(0,1) << R(0,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr
 					<< R(1,0) << R(1,1) << R(1,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr
 					<< R(2,0) << R(2,1) << R(2,2) << 0 << 0 << 0 << 0 << 0 << 0 << arma::endr;
 
-			q = arma::mat(9, x1.size());
-
-            // Calculate ~q
+            // Calculate ~q = [qx, qy, qz, qx^2, qy^2, qz^2, qxqy, qyqz, qzqx]
+			qTilde = arma::mat(9, x1.size());
 			for ( int i = 0; i < x1.size(); ++i ) {
-				q(0,i) = x0.at(i).x - initCom.x;	// qx
-				q(1,i) = x0.at(i).y - initCom.y;	// qy
-				q(2,i) = x0.at(i).z - initCom.z;	// qz
-				q(3,i) = q(0,i)*q(0,i);				// qx^2
-				q(4,i) = q(1,i)*q(1,i);				// qy^2
-				q(5,i) = q(2,i)*q(2,i);				// qz^2
-				q(6,i) = q(0,i)*q(1,i);				// qx*qy
-				q(7,i) = q(1,i)*q(2,i);				// qy*qz
-				q(8,i) = q(2,i)*q(0,i);				// qz*qx
+				qTilde(0,i) = x0.at(i).x - initCom.x;	// qx
+				qTilde(1,i) = x0.at(i).y - initCom.y;	// qy
+				qTilde(2,i) = x0.at(i).z - initCom.z;	// qz
+				qTilde(3,i) = qTilde(0,i)*qTilde(0,i);	// qx^2
+				qTilde(4,i) = qTilde(1,i)*qTilde(1,i);	// qy^2
+				qTilde(5,i) = qTilde(2,i)*qTilde(2,i);	// qz^2
+				qTilde(6,i) = qTilde(0,i)*qTilde(1,i);	// qx*qy
+				qTilde(7,i) = qTilde(1,i)*qTilde(2,i);	// qy*qz
+				qTilde(8,i) = qTilde(2,i)*qTilde(0,i);	// qz*qx
 			}
             
-			Apq = mass * p * q.t();
-			Aqq = mass * (q * q.t()).i(); 
+            // Calculate Apq and Aqq using new ~q
+			ApqTilde = mass * p * qTilde.t();
+			AqqTilde = mass * (qTilde * qTilde.t()).i(); 
 
 			// Ã
-			A = Apq * Aqq;	
+			A = ApqTilde * AqqTilde;
 
             // Scale ~A
             Asquare = arma::eye<arma::mat>(9,9);
@@ -181,11 +175,10 @@ void ParticleSystem::deform() {
             A.row(0) = Asquare.row(0);
             A.row(1) = Asquare.row(1);
             A.row(2) = Asquare.row(2);
-			// Find rotational part in Apq through Singular Value Decomposition
 			
-            RTilde = beta * A + (1.0 - beta) * RTilde;
+            TTilde = beta * A + (1.0 - beta) * RTilde;
 
-			gTmp = RTilde * q;
+			gTmp = TTilde * qTilde;
 
 			// Compute goal positions
 			for ( int i = 0; i < x1.size(); ++i ) {
@@ -203,15 +196,14 @@ void ParticleSystem::deform() {
 
 	// Update positions with the modified Euler integration schema
 	for (int i = 0; i < x1.size(); ++i) {
-		v->at(i) += flubbiness * stiffness * (g.at(i) - x1.at(i)) / dt;
+		v->at(i) += bounciness * stiffness * (g.at(i) - x1.at(i)) / dt;
 		x1.at(i) += stiffness* (g.at(i) - x1.at(i));
 		if (x1.at(i).y <= 0) 
             x1.at(i).y = 0.01; // Set position to above object
 	}	
 }
 
-void ParticleSystem::updateForce()
-{
+void ParticleSystem::updateForce() {
     // Should set forces according to input and collisions etc
     for (int i = 0; i < F->size(); ++i) {
         // Gravity
@@ -229,7 +221,6 @@ void ParticleSystem::updateForce()
 
             F->at(i) += (collisionImpulse + frictionImpulse) / dt;
             x1.at(i).y = 0.01; // Set position to above object
-
         }
     }
 }

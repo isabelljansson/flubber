@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
     object.gravity = glm::dvec3(0.0, -9.82, 0.0);
     object.initVel = glm::dvec3();
     object.mass = 1.0;
-    object.flubbiness = 0.5;
+    object.bounciness = 0.5;
     object.friction = 0.1;
     object.beta = 0.5;
     object.elasticity = 0.5;

@@ -63,7 +63,7 @@ MStatus PushDeformerNode::deform(MDataBlock& data, MItGeometry& it_geo,
         
         mesh->mass = data.inputValue(Mass).asDouble();
         mesh->stiffness = data.inputValue(Stiffness).asDouble();
-        mesh->flubbiness = data.inputValue(Bounciness).asDouble();
+        mesh->bounciness = data.inputValue(Bounciness).asDouble();
         mesh->friction = data.inputValue(Friction).asDouble();
         mesh->beta = data.inputValue(Deformation).asDouble();
         mesh->elasticity = data.inputValue(Elasticity).asDouble();
